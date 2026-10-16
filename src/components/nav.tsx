@@ -31,14 +31,14 @@ function isActive(pathname: string, href: string) {
 export function Sidebar() {
   const pathname = usePathname();
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-zinc-200 bg-white md:flex">
+    <aside className="hidden w-60 shrink-0 flex-col border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 md:flex">
       <div className="flex items-center gap-2 px-5 py-5">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600 text-lg">
           🏡
         </span>
         <div>
           <p className="text-sm font-bold leading-tight">Financia Casera</p>
-          <p className="text-[11px] text-zinc-400">Economía del hogar</p>
+          <p className="text-[11px] text-zinc-400 dark:text-zinc-500">Economía del hogar</p>
         </div>
       </div>
       <nav className="flex-1 space-y-1 px-3">
@@ -48,8 +48,8 @@ export function Sidebar() {
             href={item.href}
             className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
               isActive(pathname, item.href)
-                ? "bg-green-50 font-semibold text-green-700"
-                : "text-zinc-600 hover:bg-zinc-100"
+                ? "bg-green-50 dark:bg-green-950 font-semibold text-green-700 dark:text-green-300"
+                : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             }`}
           >
             <span>{item.icon}</span>
@@ -57,7 +57,7 @@ export function Sidebar() {
           </Link>
         ))}
       </nav>
-      <p className="px-5 py-4 text-[10px] text-zinc-300">v1.0 · PYG/USD</p>
+      <p className="px-5 py-4 text-[10px] text-zinc-300 dark:text-zinc-600">v1.0 · PYG/USD</p>
     </aside>
   );
 }
@@ -65,7 +65,7 @@ export function Sidebar() {
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-zinc-200 bg-white/95 backdrop-blur md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur md:hidden">
       {mobileItems.map((item) => {
         const active = isActive(pathname, item.href) && item.href !== "/app/movimientos/nuevo";
         const isFab = item.href === "/app/movimientos/nuevo";
@@ -74,7 +74,7 @@ export function BottomNav() {
             key={item.href}
             href={item.href}
             className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${
-              active ? "font-semibold text-green-700" : "text-zinc-500"
+              active ? "font-semibold text-green-700 dark:text-green-300" : "text-zinc-500 dark:text-zinc-400"
             }`}
           >
             <span

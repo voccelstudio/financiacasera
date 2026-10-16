@@ -14,6 +14,7 @@ Aplicación web (instalable en el celular como app) para que una **familia parag
 | 💳 **Cuentas por pagar** | Deudas con progreso de pago y abonos parciales |
 | 👨‍👩‍👧 **Familia** | Código de invitación, agregar miembros (con o sin cuenta) y **quitar miembros** de dos formas: archivar (conserva historial) o eliminar (borra solo sus gastos personales) |
 | 💡 **Tips** | Consejos de ahorro con contexto paraguayo |
+| 🌙 **Modo nocturno** | Tema claro/oscuro/según el sistema, con preferencia guardada y sin parpadeo |
 | 📱 **PWA** | Se instala en el celular desde el navegador y funciona con caché offline básica |
 
 ### 💡 Diseño de "separación de cuentas"

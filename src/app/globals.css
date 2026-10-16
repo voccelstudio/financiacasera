@@ -1,8 +1,25 @@
 @import "tailwindcss";
 
+/* 🌙 Modo oscuro por clase (.dark en <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #fafaf9;
   --foreground: #1c1917;
+  /* Colores para gráficos (Recharts) */
+  --chart-grid: #f4f4f5;
+  --chart-label: #71717a;
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-border: #e4e4e7;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --chart-grid: #27272a;
+  --chart-label: #a1a1aa;
+  --chart-tooltip-bg: #18181b;
+  --chart-tooltip-border: #3f3f46;
 }
 
 @theme inline {
@@ -33,6 +50,9 @@ body {
 ::-webkit-scrollbar-thumb {
   background: #d6d3d1;
   border-radius: 8px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #3f3f46;
 }
 
 /* Animación suave para diálogos */

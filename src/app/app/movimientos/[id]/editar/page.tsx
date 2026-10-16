@@ -33,9 +33,9 @@ export default async function EditarMovimientoPage({
     <div className="mx-auto max-w-lg space-y-4">
       <div>
         <h1 className="text-xl font-bold">Editar movimiento</h1>
-        <p className="text-xs text-zinc-500">Corregí lo que necesites y guardá.</p>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">Corregí lo que necesites y guardá.</p>
       </div>
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-sm">
         <TransactionForm
           categories={categories}
           members={members}

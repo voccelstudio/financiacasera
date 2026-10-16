@@ -34,7 +34,7 @@ export default async function FamiliaPage() {
     <div className="mx-auto max-w-2xl space-y-5">
       <div>
         <h1 className="text-xl font-bold">Familia: {family.name}</h1>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
           {members.length} miembro{members.length !== 1 ? "s" : ""} activo
           {members.length !== 1 ? "s" : ""} · tu rol: {isAdmin ? "👤 admin" : "miembro"}
         </p>
@@ -43,9 +43,9 @@ export default async function FamiliaPage() {
       <InviteCode code={family.invite_code} familyName={family.name} />
 
       {/* Lista de miembros */}
-      <section className="rounded-2xl border border-zinc-200 bg-white p-4">
+      <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
         <h2 className="mb-3 text-sm font-bold">👨‍👩‍👧 Miembros activos</h2>
-        <ul className="divide-y divide-zinc-100">
+        <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
           {members.map((m) => {
             const spent = spentByMember.get(m.id) ?? 0;
             const isMe = m.user_id === userId;
@@ -60,20 +60,20 @@ export default async function FamiliaPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
                     {m.name}
-                    {isMe && <span className="ml-1.5 text-[10px] text-green-600">(vos)</span>}
+                    {isMe && <span className="ml-1.5 text-[10px] text-green-600 dark:text-green-400">(vos)</span>}
                     {m.role === "admin" && (
-                      <span className="ml-1.5 rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] text-zinc-500">
+                      <span className="ml-1.5 rounded bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-500 dark:text-zinc-400">
                         admin
                       </span>
                     )}
                   </p>
-                  <p className="text-xs text-zinc-400 tabular">
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 tabular">
                     Gastos propios este mes: {formatMoney(spent)}
                   </p>
                 </div>
                 {isAdmin && !isMe && <RemoveMemberDialog member={m} />}
                 {isMe && (
-                  <span className="text-[11px] text-zinc-300">—</span>
+                  <span className="text-[11px] text-zinc-300 dark:text-zinc-600">—</span>
                 )}
               </li>
             );
@@ -82,9 +82,9 @@ export default async function FamiliaPage() {
       </section>
 
       {/* Agregar miembro sin cuenta */}
-      <section className="rounded-2xl border border-zinc-200 bg-white p-4">
+      <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
         <h2 className="mb-1 text-sm font-bold">➕ Agregar miembro</h2>
-        <p className="mb-3 text-[11px] text-zinc-400">
+        <p className="mb-3 text-[11px] text-zinc-400 dark:text-zinc-500">
           Para niños o personas que no van a usar la app: podés asignarle gastos igual.
           Si va a usar la app, compartile el código de arriba.
         </p>
@@ -93,11 +93,11 @@ export default async function FamiliaPage() {
 
       {/* Miembros que salieron */}
       {former.length > 0 && (
-        <section className="rounded-2xl border border-zinc-200 bg-white p-4">
+        <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
           <h2 className="mb-3 text-sm font-bold">🚪 Ya no forman parte</h2>
           <ul className="space-y-2 text-sm">
             {former.map((m) => (
-              <li key={m.id} className="flex items-center justify-between text-zinc-500">
+              <li key={m.id} className="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
                 <span>{m.name}</span>
                 <span className="text-xs">
                   {m.left_at
@@ -107,13 +107,13 @@ export default async function FamiliaPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[11px] text-zinc-400">
+          <p className="mt-2 text-[11px] text-zinc-400 dark:text-zinc-500">
             Su historial se conserva en los reportes anteriores.
           </p>
         </section>
       )}
 
-      <p className="rounded-xl bg-purple-50 px-4 py-3 text-xs text-purple-700">
+      <p className="rounded-xl bg-purple-50 dark:bg-purple-950 px-4 py-3 text-xs text-purple-700 dark:text-purple-300">
         💡 <b>Separación de cuentas:</b> cuando cargás un gasto elegís si es de la{" "}
         <b>familia en general</b> o si corresponde a <b>miembros específicos</b>. Así, si
         alguien se va, sus gastos personales se pueden borrar sin tocar lo compartido.

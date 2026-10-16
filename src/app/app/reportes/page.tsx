@@ -87,16 +87,16 @@ export default async function ReportesPage({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">Reportes</h1>
-          <p className="text-xs text-zinc-500">A dónde se va la plata de tu familia.</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">A dónde se va la plata de tu familia.</p>
         </div>
         <form method="GET" className="flex items-center gap-2">
           <input
             type="month"
             name="month"
             defaultValue={month}
-            className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-xs"
+            className="rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-1.5 text-xs"
           />
-          <button className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-50">
+          <button className="rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-950">
             Ver
           </button>
         </form>
@@ -104,23 +104,23 @@ export default async function ReportesPage({
 
       {/* Resumen del mes */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-3 text-center">
-          <p className="text-[11px] text-zinc-500">Ingresos</p>
-          <p className="truncate text-sm font-bold text-green-600 tabular">
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 text-center">
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Ingresos</p>
+          <p className="truncate text-sm font-bold text-green-600 dark:text-green-400 tabular">
             {formatMoney(summary.income)}
           </p>
         </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-3 text-center">
-          <p className="text-[11px] text-zinc-500">Gastos</p>
-          <p className="truncate text-sm font-bold text-red-500 tabular">
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 text-center">
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Gastos</p>
+          <p className="truncate text-sm font-bold text-red-500 dark:text-red-400 tabular">
             {formatMoney(summary.expense)}
           </p>
         </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-3 text-center">
-          <p className="text-[11px] text-zinc-500">Ahorro</p>
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 text-center">
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Ahorro</p>
           <p
             className={`truncate text-sm font-bold tabular ${
-              summary.balance >= 0 ? "text-green-700" : "text-red-600"
+              summary.balance >= 0 ? "text-green-700 dark:text-green-300" : "text-red-600 dark:text-red-400"
             }`}
           >
             {formatMoney(summary.balance)}
@@ -128,32 +128,32 @@ export default async function ReportesPage({
         </div>
       </div>
 
-      <section className="rounded-2xl border border-zinc-200 bg-white p-4">
+      <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
         <h2 className="mb-3 text-sm font-bold">📈 Ingresos vs. gastos (6 meses)</h2>
         <MonthlyChart data={monthly} />
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-2xl border border-zinc-200 bg-white p-4">
+        <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
           <h2 className="mb-3 text-sm font-bold">🍕 Gastos por categoría</h2>
           <CategoryPie data={pieData} />
           {topCat && (
-            <p className="mt-2 text-center text-xs text-zinc-500">
+            <p className="mt-2 text-center text-xs text-zinc-500 dark:text-zinc-400">
               Mayor gasto: <b>{topCat.name}</b> ({formatMoney(topCat.value)})
             </p>
           )}
         </section>
 
-        <section className="rounded-2xl border border-zinc-200 bg-white p-4">
+        <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
           <h2 className="mb-3 text-sm font-bold">🎯 Gastos por miembro</h2>
           <MemberBar data={memberData} />
-          <p className="mt-2 text-center text-[11px] text-zinc-400">
+          <p className="mt-2 text-center text-[11px] text-zinc-400 dark:text-zinc-500">
             Solo gastos asignados a miembros en {monthLabel(month)}.
           </p>
         </section>
       </div>
 
-      <p className="rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-700">
+      <p className="rounded-xl bg-amber-50 dark:bg-amber-950 px-4 py-3 text-xs text-amber-700 dark:text-amber-300">
         💡 <b>Regla 50/30/20:</b> intentá que el 50% cubra lo necesario (casa, comida,
         servicios), el 30% lo deseable (salidas, ropa) y el 20% vaya directo a ahorro.
       </p>

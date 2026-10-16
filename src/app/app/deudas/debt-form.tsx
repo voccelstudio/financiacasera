@@ -7,7 +7,7 @@ export function DebtForm() {
   const [state, action, pending] = useActionState(saveDebt, undefined);
 
   const input =
-    "w-full rounded-xl border border-zinc-300 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100";
+    "w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900";
 
   return (
     <form action={action} className="space-y-3">
@@ -32,7 +32,7 @@ export function DebtForm() {
             placeholder="Monto total"
             className={`${input} flex-1 tabular`}
           />
-          <select name="currency" defaultValue="PYG" className="w-24 rounded-xl border border-zinc-300 px-2 text-sm">
+          <select name="currency" defaultValue="PYG" className="w-24 rounded-xl border border-zinc-300 dark:border-zinc-700 px-2 text-sm">
             <option value="PYG">PYG</option>
             <option value="USD">USD</option>
           </select>
@@ -46,8 +46,8 @@ export function DebtForm() {
       >
         {pending ? "Guardando..." : "Agregar"}
       </button>
-      {state?.ok && <p className="text-xs text-green-700">✅ Deuda registrada</p>}
-      {state?.error && <p className="text-xs text-red-600">{state.error}</p>}
+      {state?.ok && <p className="text-xs text-green-700 dark:text-green-300">✅ Deuda registrada</p>}
+      {state?.error && <p className="text-xs text-red-600 dark:text-red-400">{state.error}</p>}
     </form>
   );
 }
@@ -61,7 +61,7 @@ export function PayDebtButton({ id }: { id: string }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 hover:bg-green-100"
+        className="rounded-lg bg-green-50 dark:bg-green-950 px-3 py-1.5 text-xs font-semibold text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900"
       >
         Abonar
       </button>
@@ -90,15 +90,15 @@ export function PayDebtButton({ id }: { id: string }) {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="Monto"
-        className="w-24 rounded-lg border border-zinc-300 px-2 py-1.5 text-xs tabular"
+        className="w-24 rounded-lg border border-zinc-300 dark:border-zinc-700 px-2 py-1.5 text-xs tabular"
       />
       <button type="submit" className="rounded-lg bg-green-600 px-2.5 py-1.5 text-xs font-semibold text-white">
         OK
       </button>
-      <button type="button" onClick={() => setOpen(false)} className="text-xs text-zinc-400">
+      <button type="button" onClick={() => setOpen(false)} className="text-xs text-zinc-400 dark:text-zinc-500">
         ✕
       </button>
-      {error && <p className="text-[10px] text-red-600">{error}</p>}
+      {error && <p className="text-[10px] text-red-600 dark:text-red-400">{error}</p>}
     </form>
   );
 }

@@ -67,7 +67,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">Movimientos</h1>
-          <p className="text-xs text-zinc-500">{monthLabel(month)}</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{monthLabel(month)}</p>
         </div>
         <Link
           href="/app/movimientos/nuevo"
@@ -79,23 +79,23 @@ export default async function MovimientosPage({ searchParams }: Props) {
 
       {/* Resumen del mes */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-3 text-center">
-          <p className="text-[11px] text-zinc-500">Ingresos</p>
-          <p className="truncate text-sm font-bold text-green-600 tabular">
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 text-center">
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Ingresos</p>
+          <p className="truncate text-sm font-bold text-green-600 dark:text-green-400 tabular">
             {formatMoney(summary.income)}
           </p>
         </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-3 text-center">
-          <p className="text-[11px] text-zinc-500">Gastos</p>
-          <p className="truncate text-sm font-bold text-red-500 tabular">
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 text-center">
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Gastos</p>
+          <p className="truncate text-sm font-bold text-red-500 dark:text-red-400 tabular">
             {formatMoney(summary.expense)}
           </p>
         </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-3 text-center">
-          <p className="text-[11px] text-zinc-500">Balance</p>
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 text-center">
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Balance</p>
           <p
             className={`truncate text-sm font-bold tabular ${
-              summary.balance >= 0 ? "text-green-700" : "text-red-600"
+              summary.balance >= 0 ? "text-green-700 dark:text-green-300" : "text-red-600 dark:text-red-400"
             }`}
           >
             {formatMoney(summary.balance)}
@@ -109,12 +109,12 @@ export default async function MovimientosPage({ searchParams }: Props) {
           type="month"
           name="month"
           defaultValue={month}
-          className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm"
         />
         <select
           name="type"
           defaultValue={params.type ?? ""}
-          className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm"
         >
           <option value="">Todos</option>
           <option value="expense">Solo gastos</option>
@@ -123,7 +123,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
         <select
           name="category"
           defaultValue={params.category ?? ""}
-          className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm"
         >
           <option value="">Todas las categorías</option>
           {categories.map((c: Category) => (
@@ -135,7 +135,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
         <select
           name="member"
           defaultValue={params.member ?? ""}
-          className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm"
         >
           <option value="">Toda la familia</option>
           {members.map((m: FamilyMember) => (
@@ -146,7 +146,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
         </select>
         <button
           type="submit"
-          className="rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-50"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-2 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-950"
         >
           Filtrar
         </button>
@@ -154,10 +154,10 @@ export default async function MovimientosPage({ searchParams }: Props) {
 
       {/* Lista */}
       {transactions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center">
+        <div className="rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-10 text-center">
           <p className="text-3xl">🪙</p>
-          <p className="mt-2 text-sm font-semibold text-zinc-600">Sin movimientos este mes</p>
-          <p className="text-xs text-zinc-400">
+          <p className="mt-2 text-sm font-semibold text-zinc-600 dark:text-zinc-300">Sin movimientos este mes</p>
+          <p className="text-xs text-zinc-400 dark:text-zinc-500">
             Cargá tu primer ingreso o gasto para empezar a ver reportes.
           </p>
         </div>
@@ -165,14 +165,14 @@ export default async function MovimientosPage({ searchParams }: Props) {
         <div className="space-y-4">
           {[...byDate.entries()].map(([date, rows]) => (
             <div key={date}>
-              <p className="mb-1.5 text-xs font-semibold text-zinc-400">
+              <p className="mb-1.5 text-xs font-semibold text-zinc-400 dark:text-zinc-500">
                 {new Date(date + "T12:00:00").toLocaleDateString("es-PY", {
                   weekday: "long",
                   day: "numeric",
                   month: "long",
                 })}
               </p>
-              <div className="divide-y divide-zinc-100 overflow-hidden rounded-2xl border border-zinc-200 bg-white">
+              <div className="divide-y divide-zinc-100 dark:divide-zinc-800 overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                 {rows.map((t) => {
                   const cat = t.category_id ? catMap.get(t.category_id) : undefined;
                   const shares = sharesByTx.get(t.id) ?? [];
@@ -189,10 +189,10 @@ export default async function MovimientosPage({ searchParams }: Props) {
                         <p className="truncate text-sm font-medium">
                           {cat?.name ?? "Sin categoría"}
                           {t.scope === "members" && shares.length > 0 && (
-                            <span className="ml-1.5 text-[10px] text-zinc-400">🎯</span>
+                            <span className="ml-1.5 text-[10px] text-zinc-400 dark:text-zinc-500">🎯</span>
                           )}
                         </p>
-                        <p className="truncate text-xs text-zinc-400">
+                        <p className="truncate text-xs text-zinc-400 dark:text-zinc-500">
                           {t.description || (isIncome ? "Ingreso" : "Gasto")}
                         </p>
                         {shares.length > 0 && (
@@ -215,7 +215,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
                       <div className="text-right">
                         <p
                           className={`text-sm font-bold tabular ${
-                            isIncome ? "text-green-600" : "text-zinc-800"
+                            isIncome ? "text-green-600 dark:text-green-400" : "text-zinc-800 dark:text-zinc-100"
                           }`}
                         >
                           {isIncome ? "+" : "−"}
@@ -223,7 +223,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
                             toPyg(Number(t.amount), t.currency as Currency, Number(t.pyg_rate))
                           )}
                         </p>
-                        <p className="text-[10px] text-zinc-400">
+                        <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
                           {t.currency === "USD"
                             ? `US$ ${Number(t.amount).toFixed(2)}`
                             : "₲"}
@@ -231,7 +231,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
                       </div>
                       <Link
                         href={`/app/movimientos/${t.id}/editar`}
-                        className="rounded-lg px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-100"
+                        className="rounded-lg px-2 py-1 text-xs text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                         aria-label="Editar"
                       >
                         ✏️
@@ -240,7 +240,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
                         <input type="hidden" name="id" value={t.id} />
                         <button
                           type="submit"
-                          className="rounded-lg px-2 py-1 text-xs text-zinc-400 hover:bg-red-50"
+                          className="rounded-lg px-2 py-1 text-xs text-zinc-400 dark:text-zinc-500 hover:bg-red-50 dark:hover:bg-red-950"
                           aria-label="Eliminar"
                         >
                           🗑️

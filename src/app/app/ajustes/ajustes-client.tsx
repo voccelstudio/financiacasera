@@ -6,11 +6,11 @@ import { leaveFamily, renameFamily, saveProfileName, saveRate } from "./actions"
 type Result = { error?: string; ok?: string };
 
 const input =
-  "w-full rounded-xl border border-zinc-300 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100";
+  "w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900";
 
 function Feedback({ state }: { state: Result | undefined }) {
-  if (state?.ok) return <p className="text-xs text-green-700">{state.ok}</p>;
-  if (state?.error) return <p className="text-xs text-red-600">{state.error}</p>;
+  if (state?.ok) return <p className="text-xs text-green-700 dark:text-green-300">{state.ok}</p>;
+  if (state?.error) return <p className="text-xs text-red-600 dark:text-red-400">{state.error}</p>;
   return null;
 }
 
@@ -55,13 +55,13 @@ export function FamilyNameForm({
         <button
           type="submit"
           disabled={pending || !canEdit}
-          className="rounded-xl border border-zinc-300 px-4 py-2.5 text-sm text-zinc-600 hover:bg-zinc-50 disabled:opacity-50"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 px-4 py-2.5 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-950 disabled:opacity-50"
         >
           {pending ? "..." : "Cambiar"}
         </button>
       </div>
       {!canEdit && (
-        <p className="text-[11px] text-zinc-400">
+        <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
           Solo el admin de la familia puede cambiarlo.
         </p>
       )}
@@ -84,7 +84,7 @@ export function ProfileNameForm({ initialName }: { initialName: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl border border-zinc-300 px-4 py-2.5 text-sm text-zinc-600 hover:bg-zinc-50"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 px-4 py-2.5 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-950"
         >
           {pending ? "..." : "Guardar"}
         </button>
@@ -102,7 +102,7 @@ export function LeaveFamilyButton({ familyName }: { familyName: string }) {
         if (!confirm("¿Seguro que querés salir de la familia?")) e.preventDefault();
       }}
     >
-      <button className="rounded-xl border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50">
+      <button className="rounded-xl border border-red-300 dark:border-red-700 px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950">
         Salir de {familyName}
       </button>
     </form>

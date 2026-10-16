@@ -2,9 +2,9 @@ import Link from "next/link";
 
 export default function PoliticaPrivacidad() {
   return (
-    <main className="mx-auto max-w-lg px-4 py-10 text-sm leading-relaxed text-zinc-700">
+    <main className="mx-auto max-w-lg px-4 py-10 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
       <h1 className="text-xl font-bold">Política de privacidad</h1>
-      <p className="mt-1 text-xs text-zinc-400">Financia Casera</p>
+      <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">Financia Casera</p>
 
       <section className="mt-5 space-y-3">
         <p>
@@ -36,7 +36,7 @@ export default function PoliticaPrivacidad() {
       </section>
 
       <p className="mt-6">
-        <Link href="/" className="text-green-700 underline">
+        <Link href="/" className="text-green-700 dark:text-green-300 underline">
           ← Volver a la app
         </Link>
       </p>

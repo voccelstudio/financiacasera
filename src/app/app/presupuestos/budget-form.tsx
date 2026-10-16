@@ -14,7 +14,7 @@ export function BudgetForm({
   const [state, action, pending] = useActionState(saveBudget, undefined);
 
   const input =
-    "w-full rounded-xl border border-zinc-300 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100";
+    "w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900";
 
   return (
     <form action={action} className="space-y-3">
@@ -47,8 +47,8 @@ export function BudgetForm({
       >
         {pending ? "Guardando..." : "Guardar presupuesto"}
       </button>
-      {state?.ok && <p className="text-xs text-green-700">✅ Presupuesto guardado</p>}
-      {state?.error && <p className="text-xs text-red-600">{state.error}</p>}
+      {state?.ok && <p className="text-xs text-green-700 dark:text-green-300">✅ Presupuesto guardado</p>}
+      {state?.error && <p className="text-xs text-red-600 dark:text-red-400">{state.error}</p>}
     </form>
   );
 }

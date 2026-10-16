@@ -16,7 +16,7 @@ interface Props {
 }
 
 const input =
-  "w-full rounded-xl border border-zinc-300 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100";
+  "w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900";
 
 export function TransactionForm({ categories, members, defaultRate, transaction, initialMemberIds = [] }: Props) {
   const [state, action, pending] = useActionState(saveTransaction, undefined);
@@ -58,9 +58,9 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
             className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
               type === t
                 ? t === "expense"
-                  ? "border-red-300 bg-red-50 text-red-600"
-                  : "border-green-300 bg-green-50 text-green-700"
-                : "border-zinc-200 text-zinc-500 hover:bg-zinc-50"
+                  ? "border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400"
+                  : "border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300"
+                : "border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-950"
             }`}
           >
             {t === "expense" ? "💸 Gasto" : "💰 Ingreso"}
@@ -70,7 +70,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
 
       {/* Monto + moneda */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-zinc-500">Monto</label>
+        <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">Monto</label>
         <div className="flex gap-2">
           <input
             name="amount"
@@ -81,14 +81,14 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
             placeholder={currency === "USD" ? "100.00" : "150000"}
             className={`${input} flex-1 text-lg font-semibold tabular`}
           />
-          <div className="flex overflow-hidden rounded-xl border border-zinc-300">
+          <div className="flex overflow-hidden rounded-xl border border-zinc-300 dark:border-zinc-700">
             {(["PYG", "USD"] as const).map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => setCurrency(c)}
                 className={`px-3 text-xs font-bold ${
-                  currency === c ? "bg-green-600 text-white" : "bg-white text-zinc-500"
+                  currency === c ? "bg-green-600 text-white" : "bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400"
                 }`}
               >
                 {c}
@@ -97,7 +97,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
           </div>
         </div>
         {currency === "USD" && (
-          <p className="mt-1 text-[11px] text-zinc-400">
+          <p className="mt-1 text-[11px] text-zinc-400 dark:text-zinc-500">
             Se convierte a ₲ al valor de la tasa registrada:{" "}
             <span className="tabular">{formatMoney(rate)}</span> por US$ 1
           </p>
@@ -106,7 +106,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
 
       {/* Categoría */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-zinc-500">Categoría</label>
+        <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">Categoría</label>
         <select name="category_id" defaultValue={transaction?.category_id ?? ""} className={input}>
           <option value="">Sin categoría</option>
           {filtered.map((c) => (
@@ -119,7 +119,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
 
       {/* Fecha */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-zinc-500">Fecha</label>
+        <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">Fecha</label>
         <input
           type="date"
           name="date"
@@ -131,7 +131,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
 
       {/* Descripción */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-zinc-500">Descripción (opcional)</label>
+        <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">Descripción (opcional)</label>
         <input
           name="description"
           defaultValue={transaction?.description ?? ""}
@@ -143,15 +143,15 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
 
       {/* Alcance: familia o miembros */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-zinc-500">¿A quién corresponde?</label>
+        <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">¿A quién corresponde?</label>
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => setScope("family")}
             className={`rounded-xl border px-3 py-2.5 text-sm transition ${
               scope === "family"
-                ? "border-green-300 bg-green-50 font-semibold text-green-700"
-                : "border-zinc-200 text-zinc-500 hover:bg-zinc-50"
+                ? "border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950 font-semibold text-green-700 dark:text-green-300"
+                : "border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-950"
             }`}
           >
             👨‍👩‍👧 Familia
@@ -161,8 +161,8 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
             onClick={() => setScope("members")}
             className={`rounded-xl border px-3 py-2.5 text-sm transition ${
               scope === "members"
-                ? "border-green-300 bg-green-50 font-semibold text-green-700"
-                : "border-zinc-200 text-zinc-500 hover:bg-zinc-50"
+                ? "border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950 font-semibold text-green-700 dark:text-green-300"
+                : "border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-950"
             }`}
           >
             🎯 Miembros
@@ -170,8 +170,8 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
         </div>
 
         {scope === "members" && (
-          <div className="mt-2 space-y-1 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-            <p className="text-[11px] text-zinc-500">
+          <div className="mt-2 space-y-1 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 p-3">
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
               Se divide en partes iguales entre los seleccionados:
             </p>
             {members.map((m) => {
@@ -179,7 +179,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
               return (
                 <label
                   key={m.id}
-                  className="flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-white"
+                  className="flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-white dark:hover:bg-zinc-900"
                 >
                   <span className="flex items-center gap-2">
                     <input
@@ -195,7 +195,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
                     {m.name}
                   </span>
                   {checked && selectedMembers.length > 0 && (
-                    <span className="text-xs tabular text-zinc-500">
+                    <span className="text-xs tabular text-zinc-500 dark:text-zinc-400">
                       {formatMoney(
                         numericAmount / selectedMembers.length,
                         currency
@@ -210,7 +210,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
       </div>
 
       {state?.error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{state.error}</p>
+        <p className="rounded-lg bg-red-50 dark:bg-red-950 px-3 py-2 text-xs text-red-600 dark:text-red-400">{state.error}</p>
       )}
 
       <div className="flex gap-2">
@@ -223,7 +223,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
         </button>
         <Link
           href="/app/movimientos"
-          className="rounded-xl border border-zinc-300 px-4 py-3 text-sm text-zinc-600 hover:bg-zinc-50"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 px-4 py-3 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-950"
         >
           Cancelar
         </Link>
