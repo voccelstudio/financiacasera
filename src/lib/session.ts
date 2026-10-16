@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { DEMO, demoContext } from '@/lib/demo/store'
@@ -13,8 +14,10 @@ export interface FamilyContext {
 /**
  * Obtiene la sesión actual + la familia a la que pertenece el usuario.
  * Redirige a /login si no hay sesión, o a /onboarding si no tiene familia.
+ * Envuelto en cache(): el layout y la página comparten UNA sola llamada
+ * por request (importante cuando haya backend real: ahorra 3-4 queries).
  */
-export async function getFamilyContext(): Promise<FamilyContext> {
+export const getFamilyContext = cache(async (): Promise<FamilyContext> => {
   if (DEMO) {
     const ctx = demoContext()
     return {
@@ -57,4 +60,4 @@ export async function getFamilyContext(): Promise<FamilyContext> {
     family,
     membership: member as FamilyMember,
   }
-}
+})

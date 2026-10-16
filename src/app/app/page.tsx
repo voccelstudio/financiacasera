@@ -2,14 +2,14 @@ import Link from "next/link";
 import { getFamilyContext } from "@/lib/session";
 import {
   getBudgetsWithSpent,
+  getDebts,
   getLatestRate,
   getRecurringBills,
   getTransactions,
   summarize,
 } from "@/lib/queries";
 import { currentMonth, formatMoney, monthLabel, toPyg } from "@/lib/money";
-import { createClient } from "@/lib/supabase/server";
-import type { Currency, Debt } from "@/lib/types";
+import type { Currency } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -29,19 +29,13 @@ export default async function DashboardPage({
   const { family, membership } = await getFamilyContext();
   const month = currentMonth();
 
-  const [transactions, budgets, bills, rate, supabase] = await Promise.all([
+  const [transactions, budgets, bills, rate, allDebts] = await Promise.all([
     getTransactions(family.id, { month }),
     getBudgetsWithSpent(family.id, month),
     getRecurringBills(family.id),
     getLatestRate(family.id),
-    createClient(),
+    getDebts(family.id),
   ]);
-
-  const { data: debtRows } = await supabase
-    .from("debts")
-    .select("*")
-    .eq("family_id", family.id)
-    .eq("active", true);
 
   const summary = summarize(transactions);
   const today = new Date().getDate();
@@ -51,8 +45,8 @@ export default async function DashboardPage({
     .slice(0, 4);
   const overdue = bills.filter((b) => b.due_day < today);
 
-  const pendingDebts = ((debtRows ?? []) as unknown as Debt[]).filter(
-    (d) => Number(d.paid_amount) < Number(d.total_amount)
+  const pendingDebts = allDebts.filter(
+    (d) => d.active && Number(d.paid_amount) < Number(d.total_amount)
   );
   const debtTotal = pendingDebts.reduce(
     (acc, d) =>

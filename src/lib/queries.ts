@@ -214,11 +214,14 @@ export async function getBudgetsWithSpent(
     )
   }
 
-  const budgets = DEMO ? demoBudgets() : await getBudgets(familyId, month)
-  const categories = await getCategories(familyId)
+  const budgets = DEMO ? demoBudgets() : getBudgets(familyId, month)
+  const [budgetRows, categories] = await Promise.all([
+    budgets,
+    getCategories(familyId),
+  ])
   const catMap = new Map(categories.map((c) => [c.id, c]))
 
-  return budgets
+  return budgetRows
     .filter((b) => b.month === month)
     .map((budget) => ({
       budget,
