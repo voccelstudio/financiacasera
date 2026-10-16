@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { renameFamily, saveProfileName, saveRate } from "./actions";
+import { leaveFamily, renameFamily, saveProfileName, saveRate } from "./actions";
 
 type Result = { error?: string; ok?: string };
 
@@ -90,6 +90,21 @@ export function ProfileNameForm({ initialName }: { initialName: string }) {
         </button>
       </div>
       <Feedback state={state} />
+    </form>
+  );
+}
+
+export function LeaveFamilyButton({ familyName }: { familyName: string }) {
+  return (
+    <form
+      action={leaveFamily}
+      onSubmit={(e) => {
+        if (!confirm("¿Seguro que querés salir de la familia?")) e.preventDefault();
+      }}
+    >
+      <button className="rounded-xl border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50">
+        Salir de {familyName}
+      </button>
     </form>
   );
 }

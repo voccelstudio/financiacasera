@@ -4,6 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getFamilyContext } from "@/lib/session";
+import {
+  DEMO,
+  demoRenameFamily,
+  demoSaveRate,
+  demoUpdateProfile,
+} from "@/lib/demo/store";
 
 type State = { error?: string; ok?: string };
 
@@ -14,6 +20,13 @@ export async function saveRate(
 ): Promise<State> {
   const rate = Number(String(formData.get("rate") ?? "").replace(/\./g, "").replace(",", "."));
   if (!Number.isFinite(rate) || rate <= 0) return { error: "Tasa inválida." };
+
+  if (DEMO) {
+    demoSaveRate(rate);
+    revalidatePath("/app");
+    revalidatePath("/app/ajustes");
+    return { ok: `Tasa guardada: US$ 1 = ₲ ${rate.toLocaleString("es-PY")}` };
+  }
 
   const { family } = await getFamilyContext();
   const supabase = await createClient();
@@ -38,6 +51,12 @@ export async function renameFamily(
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "El nombre no puede estar vacío." };
 
+  if (DEMO) {
+    demoRenameFamily(name);
+    revalidatePath("/", "layout");
+    return { ok: "Nombre actualizado ✅" };
+  }
+
   const { family } = await getFamilyContext();
   const supabase = await createClient();
 
@@ -50,6 +69,10 @@ export async function renameFamily(
 
 /** Sale de la familia (conserva el historial; se puede volver a unir con código). */
 export async function leaveFamily(): Promise<void> {
+  if (DEMO) {
+    // En modo demo no hay a dónde salir: volvemos al resumen
+    redirect("/app");
+  }
   const supabase = await createClient();
   await supabase.rpc("leave_family");
   revalidatePath("/", "layout");
@@ -63,6 +86,12 @@ export async function saveProfileName(
 ): Promise<State> {
   const fullName = String(formData.get("full_name") ?? "").trim();
   if (!fullName) return { error: "Poné tu nombre." };
+
+  if (DEMO) {
+    demoUpdateProfile(fullName);
+    revalidatePath("/app/ajustes");
+    return { ok: "Nombre guardado ✅" };
+  }
 
   const supabase = await createClient();
   const {

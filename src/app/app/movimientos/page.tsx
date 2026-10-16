@@ -3,11 +3,11 @@ import { getFamilyContext } from "@/lib/session";
 import {
   getActiveMembers,
   getCategories,
+  getShareDetails,
   getTransactions,
   summarize,
 } from "@/lib/queries";
 import { currentMonth, formatMoney, monthLabel, toPyg } from "@/lib/money";
-import { createClient } from "@/lib/supabase/server";
 import { deleteTransaction } from "./actions";
 import type { Category, Currency, FamilyMember, Transaction } from "@/lib/types";
 
@@ -39,21 +39,13 @@ export default async function MovimientosPage({ searchParams }: Props) {
   ]);
 
   // Traer repartos (miembros) de los movimientos mostrados
-  const supabase = await createClient();
-  const { data: shareRows } = await supabase
-    .from("transaction_members")
-    .select("transaction_id, member_id, member:family_members(name, color)")
-    .in("transaction_id", transactions.map((t) => t.id));
+  const shareRows = await getShareDetails(transactions.map((t) => t.id));
 
   const sharesByTx = new Map<
     string,
     { member_id: string; member: { name: string; color: string } | null }[]
   >();
-  for (const row of (shareRows ?? []) as unknown as {
-    transaction_id: string
-    member_id: string
-    member: { name: string; color: string } | null
-  }[]) {
+  for (const row of shareRows) {
     const list = sharesByTx.get(row.transaction_id) ?? [];
     list.push(row);
     sharesByTx.set(row.transaction_id, list);

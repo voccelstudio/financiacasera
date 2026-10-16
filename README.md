@@ -28,6 +28,22 @@ Aplicación web (instalable en el celular como app) para que una **familia parag
 
 ## 🚀 Puesta en marcha
 
+### 🧪 Modo demo (sin backend)
+
+Para ver y probar la app **sin configurar nada**, el repo trae un modo demo con los
+datos de una familia paraguaya ficticia (Familia González) en memoria:
+
+```bash
+npm install
+npm run dev
+```
+
+Abrí [http://localhost:3000](http://localhost:3000) y entrás directo a la app (sin
+login). Todo es interactivo: podés agregar gastos, presupuestos, deudas, miembros, etc.
+Para activarlo/desactivarlo usá la variable `NEXT_PUBLIC_DEMO_MODE` en `.env.local`.
+
+Cuando quieras pasar al backend real, poné `NEXT_PUBLIC_DEMO_MODE=0` y seguí el paso 1.
+
 ### 1. Crear el proyecto en Supabase (gratis)
 
 1. Entrá a [supabase.com](https://supabase.com) → **New project**.

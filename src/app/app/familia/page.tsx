@@ -1,9 +1,7 @@
 import { getFamilyContext } from "@/lib/session";
-import { getActiveMembers, getTransactions } from "@/lib/queries";
+import { getActiveMembers, getFormerMembers, getShareDetails, getTransactions } from "@/lib/queries";
 import { currentMonth, formatMoney, toPyg } from "@/lib/money";
-import { createClient } from "@/lib/supabase/server";
 import { AddMemberForm, InviteCode, RemoveMemberDialog } from "./familia-client";
-import type { Currency } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -11,46 +9,26 @@ export default async function FamiliaPage() {
   const { family, membership, userId } = await getFamilyContext();
   const month = currentMonth();
 
-  const [members, txs, supabase] = await Promise.all([
+  const [members, txs, former] = await Promise.all([
     getActiveMembers(family.id),
     getTransactions(family.id, { month }),
-    createClient(),
+    getFormerMembers(family.id),
   ]);
 
-  // Miembros salidos de la familia (historial)
-  const { data: formerRows } = await supabase
-    .from("family_members")
-    .select("*")
-    .eq("family_id", family.id)
-    .eq("active", false)
-    .order("left_at", { ascending: false });
-
   // Gastos asignados por miembro este mes
-  const { data: shareRows } = await supabase
-    .from("transaction_members")
-    .select("member_id, amount, transaction:transactions(currency, pyg_rate, type)")
-    .in("transaction_id", txs.map((t) => t.id));
+  const shareRows = await getShareDetails(txs.map((t) => t.id));
 
   const spentByMember = new Map<string, number>();
-  for (const row of (shareRows ?? []) as unknown as {
-    member_id: string
-    amount: number
-    transaction: { currency: Currency; pyg_rate: number; type: string } | null
-  }[]) {
-    if (!row.transaction || row.transaction.type !== "expense") continue;
+  for (const row of shareRows) {
+    if (!row.tx || row.tx.type !== "expense") continue;
     spentByMember.set(
       row.member_id,
       (spentByMember.get(row.member_id) ?? 0) +
-        toPyg(Number(row.amount), row.transaction.currency, Number(row.transaction.pyg_rate))
+        toPyg(Number(row.amount), row.tx.currency, Number(row.tx.pyg_rate))
     );
   }
 
   const isAdmin = membership.role === "admin";
-  const former = (formerRows ?? []) as unknown as {
-    id: string
-    name: string
-    left_at: string | null
-  }[];
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">

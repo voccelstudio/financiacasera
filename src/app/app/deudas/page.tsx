@@ -1,27 +1,19 @@
 import { getFamilyContext } from "@/lib/session";
-import { getLatestRate } from "@/lib/queries";
+import { getDebts, getLatestRate } from "@/lib/queries";
 import { formatMoney, toPyg } from "@/lib/money";
 import { DebtForm, PayDebtButton } from "./debt-form";
 import { closeDebt, deleteDebt } from "./actions";
-import type { Currency, Debt } from "@/lib/types";
+import type { Currency } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function DeudasPage() {
   const { family } = await getFamilyContext();
 
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
-  const [{ data: rows }, rate] = await Promise.all([
-    supabase
-      .from("debts")
-      .select("*")
-      .eq("family_id", family.id)
-      .order("created_at", { ascending: false }),
+  const [debts, rate] = await Promise.all([
+    getDebts(family.id),
     getLatestRate(family.id),
   ]);
-
-  const debts = (rows ?? []) as unknown as Debt[];
   const active = debts.filter((d) => d.active);
   const closed = debts.filter((d) => !d.active);
 

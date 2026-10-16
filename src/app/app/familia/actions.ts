@@ -3,6 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getFamilyContext } from "@/lib/session";
+import {
+  DEMO,
+  demoAddMember,
+  demoRemoveMember,
+  demoRotateInvite,
+} from "@/lib/demo/store";
 
 type State = { error?: string; ok?: string };
 
@@ -15,6 +21,13 @@ export async function addMember(
 ): Promise<State> {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Poné el nombre del miembro." };
+
+  if (DEMO) {
+    demoAddMember(name);
+    revalidatePath("/app/familia");
+    revalidatePath("/app");
+    return { ok: `"${name}" fue agregado a la familia 👨‍👩‍👧` };
+  }
 
   const { family } = await getFamilyContext();
   const supabase = await createClient();
@@ -59,6 +72,19 @@ export async function removeMember(
   const memberId = String(formData.get("member_id") ?? "");
   const mode = String(formData.get("mode") ?? "archive") === "delete" ? "delete" : "archive";
   if (!memberId) return { error: "Miembro no encontrado." };
+
+  if (DEMO) {
+    const target = demoRemoveMember(memberId, mode);
+    if (!target) return { error: "Miembro no encontrado." };
+    revalidatePath("/app/familia");
+    revalidatePath("/app");
+    return {
+      ok:
+        mode === "delete"
+          ? `"${target}" fue eliminado y sus gastos personales borrados.`
+          : `"${target}" ya no es parte de la familia. Su historial se conserva.`,
+    };
+  }
 
   const { family, membership } = await getFamilyContext();
   const supabase = await createClient();
@@ -155,6 +181,12 @@ export async function removeMember(
 
 /** Regenera el código de invitación (por si lo compartieron demasiado). */
 export async function rotateInviteCode(): Promise<void> {
+  if (DEMO) {
+    demoRotateInvite();
+    revalidatePath("/app/familia");
+    return;
+  }
+
   const { family } = await getFamilyContext();
   const supabase = await createClient();
 

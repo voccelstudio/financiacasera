@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { DEMO, demoContext } from '@/lib/demo/store'
 import type { Family, FamilyMember, Profile } from '@/lib/types'
 
 export interface FamilyContext {
@@ -14,6 +15,16 @@ export interface FamilyContext {
  * Redirige a /login si no hay sesión, o a /onboarding si no tiene familia.
  */
 export async function getFamilyContext(): Promise<FamilyContext> {
+  if (DEMO) {
+    const ctx = demoContext()
+    return {
+      userId: ctx.userId,
+      profile: ctx.profile,
+      family: ctx.family,
+      membership: ctx.membership,
+    }
+  }
+
   const supabase = await createClient()
 
   const {

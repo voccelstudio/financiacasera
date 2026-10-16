@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getFamilyContext } from "@/lib/session";
 import { getLatestRate } from "@/lib/queries";
+import { DEMO, demoAddDebt, demoCloseDebt, demoDeleteDebt, demoPayDebt } from "@/lib/demo/store";
 
 type State = { error?: string; ok?: boolean };
 
@@ -23,8 +24,26 @@ export async function saveDebt(
   if (!Number.isFinite(total) || total <= 0) return { error: "Monto inválido." };
 
   const { family } = await getFamilyContext();
-  const supabase = await createClient();
   const rate = currency === "USD" ? await getLatestRate(family.id) : 1;
+
+  if (DEMO) {
+    demoAddDebt(
+      {
+        name,
+        direction,
+        counterparty,
+        total,
+        currency: currency as "PYG" | "USD",
+        dueDate,
+      },
+      rate
+    );
+    revalidatePath("/app");
+    revalidatePath("/app/deudas");
+    return { ok: true };
+  }
+
+  const supabase = await createClient();
 
   const { error } = await supabase.from("debts").insert({
     family_id: family.id,
@@ -55,6 +74,14 @@ export async function payDebt(
 
   if (!id) return { error: "Deuda no encontrada." };
   if (!Number.isFinite(amount) || amount <= 0) return { error: "Ingresá un monto válido." };
+
+  if (DEMO) {
+    const result = demoPayDebt(id, amount);
+    if (result.error) return result;
+    revalidatePath("/app");
+    revalidatePath("/app/deudas");
+    return { ok: true };
+  }
 
   const { family } = await getFamilyContext();
   const supabase = await createClient();
@@ -102,6 +129,12 @@ export async function payDebtPlain(formData: FormData): Promise<void> {
 export async function closeDebt(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
+  if (DEMO) {
+    demoCloseDebt(id);
+    revalidatePath("/app/deudas");
+    revalidatePath("/app");
+    return;
+  }
   const { family } = await getFamilyContext();
   const supabase = await createClient();
   await supabase
@@ -116,6 +149,12 @@ export async function closeDebt(formData: FormData): Promise<void> {
 export async function deleteDebt(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
+  if (DEMO) {
+    demoDeleteDebt(id);
+    revalidatePath("/app/deudas");
+    revalidatePath("/app");
+    return;
+  }
   const { family } = await getFamilyContext();
   const supabase = await createClient();
   await supabase.from("debts").delete().eq("id", id).eq("family_id", family.id);

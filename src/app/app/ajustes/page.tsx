@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { getFamilyContext } from "@/lib/session";
 import { getLatestRate } from "@/lib/queries";
-import { leaveFamily } from "./actions";
-import { FamilyNameForm, ProfileNameForm, RateForm } from "./ajustes-client";
+import { FamilyNameForm, LeaveFamilyButton, ProfileNameForm, RateForm } from "./ajustes-client";
 
 export const dynamic = "force-dynamic";
 
@@ -43,16 +42,7 @@ export default async function AjustesPage() {
           Tus gastos personales quedan archivados y los gastos de la familia se
           conservan. Podés volver a unirte con el código de invitación cuando quieras.
         </p>
-        <form
-          action={leaveFamily}
-          onSubmit={(e) => {
-            if (!confirm("¿Seguro que querés salir de la familia?")) e.preventDefault();
-          }}
-        >
-          <button className="rounded-xl border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50">
-            Salir de {family.name}
-          </button>
-        </form>
+        <LeaveFamilyButton familyName={family.name} />
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-4 text-xs text-zinc-500">

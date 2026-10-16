@@ -1,5 +1,20 @@
 import { createClient } from '@/lib/supabase/server'
 import { monthRange, toPyg, DEFAULT_PYG_RATE } from '@/lib/money'
+import {
+  DEMO,
+  demoBills,
+  demoBudgets,
+  demoCategories,
+  demoDebts,
+  demoFormerMembers,
+  demoLatestRate,
+  demoMembers,
+  demoShareDetails,
+  demoTransaction,
+  demoTransactions,
+  demoTransactionsRange,
+  type DemoFilters,
+} from '@/lib/demo/store'
 import type {
   Budget,
   Category,
@@ -7,10 +22,12 @@ import type {
   FamilyMember,
   RecurringBill,
   Transaction,
+  TxType,
 } from '@/lib/types'
 
 /** Tasa USD->PYG más reciente de la familia */
 export async function getLatestRate(familyId: string): Promise<number> {
+  if (DEMO) return demoLatestRate()
   const supabase = await createClient()
   const { data } = await supabase
     .from('fx_rates')
@@ -23,6 +40,7 @@ export async function getLatestRate(familyId: string): Promise<number> {
 }
 
 export async function getCategories(familyId: string): Promise<Category[]> {
+  if (DEMO) return demoCategories()
   const supabase = await createClient()
   const { data } = await supabase
     .from('categories')
@@ -34,6 +52,7 @@ export async function getCategories(familyId: string): Promise<Category[]> {
 }
 
 export async function getActiveMembers(familyId: string): Promise<FamilyMember[]> {
+  if (DEMO) return demoMembers()
   const supabase = await createClient()
   const { data } = await supabase
     .from('family_members')
@@ -44,22 +63,30 @@ export async function getActiveMembers(familyId: string): Promise<FamilyMember[]
   return (data as FamilyMember[]) ?? []
 }
 
-export interface TransactionFilters {
-  month?: string
-  type?: 'income' | 'expense'
-  categoryId?: string
-  memberId?: string
+export async function getFormerMembers(familyId: string): Promise<FamilyMember[]> {
+  if (DEMO) return demoFormerMembers()
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('family_members')
+    .select('*')
+    .eq('family_id', familyId)
+    .eq('active', false)
+    .order('left_at', { ascending: false })
+  return (data as FamilyMember[]) ?? []
 }
+
+export type TransactionFilters = DemoFilters
 
 export async function getTransactions(
   familyId: string,
   filters: TransactionFilters = {},
   limit = 200
 ): Promise<Transaction[]> {
+  if (DEMO) return demoTransactions(filters).slice(0, limit)
   const supabase = await createClient()
   let query = supabase
     .from('transactions')
-    .select('*, category:categories(name, icon, color)')
+    .select('*')
     .eq('family_id', familyId)
     .order('date', { ascending: false })
     .order('created_at', { ascending: false })
@@ -73,13 +100,10 @@ export async function getTransactions(
   if (filters.categoryId) query = query.eq('category_id', filters.categoryId)
 
   const { data } = await query
-  let rows = (data ?? []) as unknown as (Transaction & {
-    category: { name: string; icon: string; color: string } | null
-  })[]
+  let rows = (data ?? []) as Transaction[]
 
   if (filters.memberId) {
-    const supabase2 = await createClient()
-    const { data: shares } = await supabase2
+    const { data: shares } = await supabase
       .from('transaction_members')
       .select('transaction_id')
       .eq('member_id', filters.memberId)
@@ -87,7 +111,71 @@ export async function getTransactions(
     rows = rows.filter((r) => ids.has(r.id))
   }
 
-  return rows as Transaction[]
+  return rows
+}
+
+/** Rango de fechas (para reportes de varios meses) */
+export async function getTransactionsRange(
+  familyId: string,
+  from: string,
+  to: string
+): Promise<Transaction[]> {
+  if (DEMO) return demoTransactionsRange(from, to)
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('transactions')
+    .select('type, amount, currency, pyg_rate, date')
+    .eq('family_id', familyId)
+    .gte('date', from)
+    .lte('date', to)
+  return (data as Transaction[]) ?? []
+}
+
+export async function getTransaction(
+  familyId: string,
+  id: string
+): Promise<Transaction | null> {
+  if (DEMO) return demoTransaction(id)
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('id', id)
+    .eq('family_id', familyId)
+    .maybeSingle()
+  return data as Transaction | null
+}
+
+export interface ShareDetail {
+  transaction_id: string
+  member_id: string
+  amount: number
+  member: { name: string; color: string } | null
+  tx: { currency: Currency; pyg_rate: number; type: TxType } | null
+}
+
+/** Reparto de movimientos entre miembros, con datos de miembro y movimiento */
+export async function getShareDetails(txIds: string[]): Promise<ShareDetail[]> {
+  if (!txIds.length) return []
+  if (DEMO) return demoShareDetails(txIds)
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('transaction_members')
+    .select(
+      'transaction_id, member_id, amount, member:family_members(name, color), tx:transactions(currency, pyg_rate, type)'
+    )
+    .in('transaction_id', txIds)
+  return (data as unknown as ShareDetail[]) ?? []
+}
+
+export async function getShareMemberIds(transactionId: string): Promise<string[]> {
+  if (DEMO) return demoShareDetails([transactionId]).map((s) => s.member_id)
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('transaction_members')
+    .select('member_id')
+    .eq('transaction_id', transactionId)
+  return (data ?? []).map((r) => r.member_id)
 }
 
 export interface MonthSummary {
@@ -111,26 +199,13 @@ export async function getBudgetsWithSpent(
   familyId: string,
   month: string
 ): Promise<{ budget: Budget; category: Category; spent: number }[]> {
-  const supabase = await createClient()
-  const { data: budgets } = await supabase
-    .from('budgets')
-    .select('*, category:categories(*)')
-    .eq('family_id', familyId)
-    .eq('month', month)
-
-  if (!budgets?.length) return []
-
   const { from, to } = monthRange(month)
-  const { data: txs } = await supabase
-    .from('transactions')
-    .select('category_id, amount, currency, pyg_rate, type')
-    .eq('family_id', familyId)
-    .eq('type', 'expense')
-    .gte('date', from)
-    .lte('date', to)
+  const txs = DEMO
+    ? demoTransactions({ month }).filter((t) => t.type === 'expense')
+    : await getExpensesInRange(familyId, from, to)
 
   const spentByCat = new Map<string, number>()
-  for (const t of txs ?? []) {
+  for (const t of txs) {
     if (!t.category_id) continue
     spentByCat.set(
       t.category_id,
@@ -139,17 +214,48 @@ export async function getBudgetsWithSpent(
     )
   }
 
-  return (budgets as unknown as { category: Category }[]).map((row) => {
-    const budget = row as unknown as Budget & { category: Category }
-    return {
+  const budgets = DEMO ? demoBudgets() : await getBudgets(familyId, month)
+  const categories = await getCategories(familyId)
+  const catMap = new Map(categories.map((c) => [c.id, c]))
+
+  return budgets
+    .filter((b) => b.month === month)
+    .map((budget) => ({
       budget,
-      category: row.category,
+      category: catMap.get(budget.category_id) as Category,
       spent: spentByCat.get(budget.category_id) ?? 0,
-    }
-  })
+    }))
+    .filter((row) => row.category)
+}
+
+async function getBudgets(familyId: string, month: string): Promise<Budget[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('budgets')
+    .select('*')
+    .eq('family_id', familyId)
+    .eq('month', month)
+  return (data as Budget[]) ?? []
+}
+
+async function getExpensesInRange(
+  familyId: string,
+  from: string,
+  to: string
+): Promise<Transaction[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('transactions')
+    .select('category_id, amount, currency, pyg_rate, type')
+    .eq('family_id', familyId)
+    .eq('type', 'expense')
+    .gte('date', from)
+    .lte('date', to)
+  return (data as Transaction[]) ?? []
 }
 
 export async function getRecurringBills(familyId: string): Promise<RecurringBill[]> {
+  if (DEMO) return demoBills()
   const supabase = await createClient()
   const { data } = await supabase
     .from('recurring_bills')
@@ -158,4 +264,28 @@ export async function getRecurringBills(familyId: string): Promise<RecurringBill
     .eq('active', true)
     .order('due_day')
   return (data as RecurringBill[]) ?? []
+}
+
+export interface DebtWithPyg {
+  id: string
+  name: string
+  direction: 'owe' | 'lent'
+  counterparty: string | null
+  total_amount: number
+  paid_amount: number
+  currency: Currency
+  pyg_rate: number
+  due_date: string | null
+  active: boolean
+}
+
+export async function getDebts(familyId: string): Promise<DebtWithPyg[]> {
+  if (DEMO) return demoDebts() as unknown as DebtWithPyg[]
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('debts')
+    .select('*')
+    .eq('family_id', familyId)
+    .order('created_at', { ascending: false })
+  return (data as DebtWithPyg[]) ?? []
 }

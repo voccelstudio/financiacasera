@@ -1,9 +1,13 @@
 import { notFound } from "next/navigation";
 import { getFamilyContext } from "@/lib/session";
-import { getActiveMembers, getCategories, getLatestRate } from "@/lib/queries";
-import { createClient } from "@/lib/supabase/server";
+import {
+  getActiveMembers,
+  getCategories,
+  getLatestRate,
+  getShareMemberIds,
+  getTransaction,
+} from "@/lib/queries";
 import { TransactionForm } from "@/components/transaction-form";
-import type { Transaction } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -15,24 +19,15 @@ export default async function EditarMovimientoPage({
   const { id } = await params;
   const { family } = await getFamilyContext();
 
-  const supabase = await createClient();
-  const { data: transaction } = await supabase
-    .from("transactions")
-    .select("*")
-    .eq("id", id)
-    .eq("family_id", family.id)
-    .maybeSingle();
-
-  if (!transaction) notFound();
-
-  const [categories, members, rate, shareRows] = await Promise.all([
+  const [transaction, categories, members, rate, shareMemberIds] = await Promise.all([
+    getTransaction(family.id, id),
     getCategories(family.id),
     getActiveMembers(family.id),
     getLatestRate(family.id),
-    supabase.from("transaction_members").select("member_id").eq("transaction_id", id),
+    getShareMemberIds(id),
   ]);
 
-  const initialMemberIds = (shareRows.data ?? []).map((r) => r.member_id);
+  if (!transaction) notFound();
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
@@ -45,8 +40,8 @@ export default async function EditarMovimientoPage({
           categories={categories}
           members={members}
           defaultRate={rate}
-          transaction={transaction as unknown as Transaction}
-          initialMemberIds={initialMemberIds}
+          transaction={transaction}
+          initialMemberIds={shareMemberIds}
         />
       </div>
     </div>

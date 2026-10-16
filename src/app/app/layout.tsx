@@ -1,5 +1,6 @@
 import { getFamilyContext } from "@/lib/session";
 import { signOut } from "@/app/login/actions";
+import { DEMO } from "@/lib/demo/store";
 import { BottomNav, Sidebar } from "@/components/nav";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -20,14 +21,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="hidden md:block">
             <p className="text-sm font-semibold text-zinc-700">Tu hogar, tus números 💚</p>
           </div>
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-500 hover:bg-zinc-50"
-            >
-              Salir
-            </button>
-          </form>
+          <div className="flex items-center gap-2">
+            {DEMO && (
+              <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+                🧪 Modo demo
+              </span>
+            )}
+            <form action={signOut}>
+              <button
+                type="submit"
+                className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-500 hover:bg-zinc-50"
+              >
+                Salir
+              </button>
+            </form>
+          </div>
         </header>
 
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-24 pt-5 md:px-6 md:pb-10">

@@ -2,18 +2,12 @@ import { getFamilyContext } from "@/lib/session";
 import {
   getActiveMembers,
   getCategories,
+  getShareDetails,
   getTransactions,
+  getTransactionsRange,
   summarize,
 } from "@/lib/queries";
-import {
-  currentMonth,
-  formatMoney,
-  monthLabel,
-  monthRange,
-  previousMonths,
-  toPyg,
-} from "@/lib/money";
-import { createClient } from "@/lib/supabase/server";
+import { currentMonth, formatMoney, monthLabel, monthRange, previousMonths, toPyg } from "@/lib/money";
 import { CategoryPie, MemberBar, MonthlyChart } from "@/components/charts";
 import type { Category, Currency } from "@/lib/types";
 
@@ -35,27 +29,15 @@ export default async function ReportesPage({
 
   // --- Serie mensual (6 meses) ---
   const months = previousMonths(6, month);
-  const supabase = await createClient();
   const { from, to } = monthRange(months[0]);
-  const { data: allTxs } = await supabase
-    .from("transactions")
-    .select("type, amount, currency, pyg_rate, date")
-    .eq("family_id", family.id)
-    .gte("date", from)
-    .lte("date", to);
+  const allTxs = await getTransactionsRange(family.id, from, to);
 
   const monthly = months.map((m) => ({ month: m, income: 0, expense: 0 }));
   const monthIndex = new Map(months.map((m, i) => [m, i]));
-  for (const t of (allTxs ?? []) as unknown as {
-    type: string
-    amount: number
-    currency: Currency
-    pyg_rate: number
-    date: string
-  }[]) {
+  for (const t of allTxs) {
     const idx = monthIndex.get(t.date.slice(0, 7));
     if (idx === undefined) continue;
-    const pyg = toPyg(Number(t.amount), t.currency, Number(t.pyg_rate));
+    const pyg = toPyg(Number(t.amount), t.currency as Currency, Number(t.pyg_rate));
     if (t.type === "income") monthly[idx].income += pyg;
     else monthly[idx].expense += pyg;
   }
@@ -74,20 +56,12 @@ export default async function ReportesPage({
   }
 
   // Repartos por miembro
-  const { data: shareRows } = await supabase
-    .from("transaction_members")
-    .select("transaction_id, member_id, amount")
-    .in("transaction_id", currentTx.filter((t) => t.type === "expense").map((t) => t.id));
+  const expenseIds = currentTx.filter((t) => t.type === "expense").map((t) => t.id);
+  const shareRows = await getShareDetails(expenseIds);
 
-  const txById = new Map(currentTx.map((t) => [t.id, t]));
-  for (const row of (shareRows ?? []) as unknown as {
-    transaction_id: string
-    member_id: string
-    amount: number
-  }[]) {
-    const tx = txById.get(row.transaction_id);
-    if (!tx) continue;
-    const pyg = toPyg(Number(row.amount), tx.currency as Currency, Number(tx.pyg_rate));
+  for (const row of shareRows) {
+    if (!row.tx || row.tx.type !== "expense") continue;
+    const pyg = toPyg(Number(row.amount), row.tx.currency, Number(row.tx.pyg_rate));
     byMember.set(row.member_id, (byMember.get(row.member_id) ?? 0) + pyg);
   }
 

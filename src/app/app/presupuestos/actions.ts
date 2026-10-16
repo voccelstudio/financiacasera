@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getFamilyContext } from "@/lib/session";
+import { DEMO, demoDeleteBudget, demoUpsertBudget } from "@/lib/demo/store";
 
 type State = { error?: string; ok?: boolean };
 
@@ -19,6 +20,14 @@ export async function saveBudget(
   if (!Number.isFinite(amount) || amount <= 0) return { error: "Ingresá un monto válido." };
 
   const { family } = await getFamilyContext();
+
+  if (DEMO) {
+    demoUpsertBudget(categoryId, month, amount);
+    revalidatePath("/app");
+    revalidatePath("/app/presupuestos");
+    return { ok: true };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase.from("budgets").upsert(
@@ -41,6 +50,12 @@ export async function saveBudget(
 export async function deleteBudget(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
+  if (DEMO) {
+    demoDeleteBudget(id);
+    revalidatePath("/app");
+    revalidatePath("/app/presupuestos");
+    return;
+  }
   const { family } = await getFamilyContext();
   const supabase = await createClient();
   await supabase.from("budgets").delete().eq("id", id).eq("family_id", family.id);

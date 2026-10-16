@@ -4,6 +4,13 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getFamilyContext } from "@/lib/session";
 import { getLatestRate } from "@/lib/queries";
+import {
+  DEMO,
+  demoDeleteBill,
+  demoPayBill,
+  demoSaveBill,
+  demoToggleBill,
+} from "@/lib/demo/store";
 
 type State = { error?: string; ok?: boolean };
 
@@ -23,8 +30,19 @@ export async function saveBill(
   if (dueDay < 1 || dueDay > 31) return { error: "Día entre 1 y 31." };
 
   const { family } = await getFamilyContext();
-  const supabase = await createClient();
   const rate = currency === "USD" ? await getLatestRate(family.id) : 1;
+
+  if (DEMO) {
+    demoSaveBill(
+      { id: id || undefined, name, amount, currency: currency as "PYG" | "USD", dueDay, categoryId },
+      rate
+    );
+    revalidatePath("/app");
+    revalidatePath("/app/fijos");
+    return { ok: true };
+  }
+
+  const supabase = await createClient();
 
   const payload = {
     family_id: family.id,
@@ -50,6 +68,12 @@ export async function saveBill(
 export async function toggleBill(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   const active = String(formData.get("active") ?? "true") === "true";
+  if (DEMO) {
+    demoToggleBill(id);
+    revalidatePath("/app/fijos");
+    revalidatePath("/app");
+    return;
+  }
   const { family } = await getFamilyContext();
   const supabase = await createClient();
   await supabase
@@ -64,6 +88,13 @@ export async function toggleBill(formData: FormData): Promise<void> {
 /** Registra el pago de una cuenta fija como gasto del mes actual. */
 export async function payBill(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
+  if (DEMO) {
+    demoPayBill(id);
+    revalidatePath("/app");
+    revalidatePath("/app/fijos");
+    revalidatePath("/app/movimientos");
+    return;
+  }
   const { family, userId } = await getFamilyContext();
   const supabase = await createClient();
 
@@ -100,6 +131,12 @@ export async function payBill(formData: FormData): Promise<void> {
 export async function deleteBill(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
+  if (DEMO) {
+    demoDeleteBill(id);
+    revalidatePath("/app/fijos");
+    revalidatePath("/app");
+    return;
+  }
   const { family } = await getFamilyContext();
   const supabase = await createClient();
   await supabase.from("recurring_bills").delete().eq("id", id).eq("family_id", family.id);

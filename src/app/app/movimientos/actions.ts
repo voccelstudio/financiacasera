@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getFamilyContext } from "@/lib/session";
 import { getLatestRate } from "@/lib/queries";
+import { DEMO, demoDeleteTransaction, demoSaveTransaction } from "@/lib/demo/store";
 
 type State = { error?: string };
 
@@ -39,6 +40,27 @@ export async function saveTransaction(
 
   const pygRate =
     parsed.currency === "USD" ? await getLatestRate(family.id) : 1;
+
+  if (DEMO) {
+    demoSaveTransaction(
+      {
+        id: id || undefined,
+        type: parsed.type as "income" | "expense",
+        amount: parsed.amount,
+        currency: parsed.currency as "PYG" | "USD",
+        date: parsed.date,
+        categoryId: parsed.categoryId,
+        description: parsed.description,
+        scope: parsed.scope as "family" | "members",
+        memberIds: parsed.memberIds,
+      },
+      pygRate
+    );
+    revalidatePath("/app");
+    revalidatePath("/app/movimientos");
+    revalidatePath("/app/reportes");
+    redirect("/app/movimientos");
+  }
 
   const payload = {
     family_id: family.id,
@@ -93,6 +115,13 @@ export async function deleteTransaction(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   const { family } = await getFamilyContext();
+  if (DEMO) {
+    demoDeleteTransaction(id);
+    revalidatePath("/app");
+    revalidatePath("/app/movimientos");
+    revalidatePath("/app/reportes");
+    return;
+  }
   const supabase = await createClient();
   await supabase
     .from("transactions")
