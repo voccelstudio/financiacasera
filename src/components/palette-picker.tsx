@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-export type PaletteId = "guarani" | "rio" | "sol" | "lapacho" | "orquidea" | "tierra";
+export type PaletteId =
+  | "guarani"
+  | "rio"
+  | "sol"
+  | "lapacho"
+  | "orquidea"
+  | "tierra"
+  | "contraste";
 
 const STORAGE_KEY = "fc-palette";
 
@@ -13,6 +20,7 @@ export const PALETTES: { id: PaletteId; name: string; emoji: string; swatch: str
   { id: "lapacho", name: "Lapacho", emoji: "🌸", swatch: "#db2777" },
   { id: "orquidea", name: "Orquídea", emoji: "🪻", swatch: "#9333ea" },
   { id: "tierra", name: "Tierra", emoji: "🌄", swatch: "#ea580c" },
+  { id: "contraste", name: "Alto contraste", emoji: "♿", swatch: "#1f3bb3" },
 ];
 
 /** Grilla de paletas para Ajustes → Apariencia. */
@@ -36,8 +44,10 @@ export function PalettePicker() {
 
   return (
     <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Paleta de color">
-      {PALETTES.map((p) => {
+      {PALETTES.map((p, i) => {
         const selected = active === p.id;
+        // Con 7 paletas, la última ocupa todo el ancho (evita la fila huérfana)
+        const fullWidth = i === PALETTES.length - 1 && PALETTES.length % 3 === 1;
         return (
           <button
             key={p.id}
@@ -45,7 +55,7 @@ export function PalettePicker() {
             role="radio"
             aria-checked={selected}
             onClick={() => choose(p.id)}
-            className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition ${
+            className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition ${fullWidth ? "col-span-3" : ""} ${
               selected
                 ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-950 font-semibold text-brand-700 dark:text-brand-300"
                 : "border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-950"

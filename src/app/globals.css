@@ -111,6 +111,22 @@
   --brand-950: #431407;
 }
 
+/* Accesibilidad: tonos profundos → texto blanco sobre el 600 (~7:1) y
+   enlaces 700 sobre blanco (~9:1), superando WCAG AA incluso en 14px. */
+[data-theme="contraste"] {
+  --brand-50: #f0f4ff;
+  --brand-100: #dfe6ff;
+  --brand-200: #c0ccff;
+  --brand-300: #93a7fe;
+  --brand-400: #6284fc;
+  --brand-500: #4c66ef;
+  --brand-600: #1f3bb3;
+  --brand-700: #16308f;
+  --brand-800: #12266f;
+  --brand-900: #0e1e55;
+  --brand-950: #08123a;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
