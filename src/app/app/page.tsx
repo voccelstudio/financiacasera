@@ -71,7 +71,7 @@ export default async function DashboardPage({
   return (
     <div className="space-y-5">
       {welcome && (
-        <div className="rounded-2xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950 px-4 py-3 text-sm text-green-800 dark:text-green-200">
+        <div className="rounded-2xl border border-brand-200 dark:border-brand-900 bg-brand-50 dark:bg-brand-950 px-4 py-3 text-sm text-brand-800 dark:text-brand-200">
           🎉 ¡Familia <b>{welcome}</b> creada! Invitá a los demás desde la sección{" "}
           <Link href="/app/familia" className="font-semibold underline">
             Familia
@@ -123,7 +123,7 @@ export default async function DashboardPage({
           <Link
             key={l.href}
             href={l.href}
-            className="flex flex-col items-center gap-1 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 py-3 text-center transition hover:border-green-300 dark:hover:border-green-700 hover:bg-green-50 dark:hover:bg-green-950"
+            className="flex flex-col items-center gap-1 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 py-3 text-center transition hover:border-brand-300 dark:hover:border-brand-700 hover:bg-brand-50 dark:hover:bg-brand-950"
           >
             <span className="text-xl">{l.icon}</span>
             <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-300">{l.label}</span>
@@ -136,14 +136,14 @@ export default async function DashboardPage({
         <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-bold">🎯 Presupuestos</h2>
-            <Link href="/app/presupuestos" className="text-xs text-green-700 dark:text-green-300">
+            <Link href="/app/presupuestos" className="text-xs text-brand-700 dark:text-brand-300">
               Ver todos →
             </Link>
           </div>
           {budgets.length === 0 ? (
             <p className="text-xs text-zinc-400 dark:text-zinc-500">
               Todavía no cargaste presupuestos.{" "}
-              <Link href="/app/presupuestos" className="text-green-700 dark:text-green-300 underline">
+              <Link href="/app/presupuestos" className="text-brand-700 dark:text-brand-300 underline">
                 Crear uno
               </Link>
             </p>
@@ -192,14 +192,14 @@ export default async function DashboardPage({
         <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-bold">🔁 Cuentas fijas</h2>
-            <Link href="/app/fijos" className="text-xs text-green-700 dark:text-green-300">
+            <Link href="/app/fijos" className="text-xs text-brand-700 dark:text-brand-300">
               Ver todas →
             </Link>
           </div>
           {bills.length === 0 ? (
             <p className="text-xs text-zinc-400 dark:text-zinc-500">
               Agregá alquiler, luz, internet...{" "}
-              <Link href="/app/fijos" className="text-green-700 dark:text-green-300 underline">
+              <Link href="/app/fijos" className="text-brand-700 dark:text-brand-300 underline">
                 aquí
               </Link>
             </p>
@@ -234,7 +234,7 @@ export default async function DashboardPage({
         <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-bold">💳 Cuentas por pagar</h2>
-            <Link href="/app/deudas" className="text-xs text-green-700 dark:text-green-300">
+            <Link href="/app/deudas" className="text-xs text-brand-700 dark:text-brand-300">
               Ver todas →
             </Link>
           </div>
@@ -260,7 +260,7 @@ export default async function DashboardPage({
           </p>
           <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
             Usada para convertir los montos en dólares.{" "}
-            <Link href="/app/ajustes" className="text-green-700 dark:text-green-300 underline">
+            <Link href="/app/ajustes" className="text-brand-700 dark:text-brand-300 underline">
               Actualizar
             </Link>
           </p>
@@ -271,7 +271,7 @@ export default async function DashboardPage({
       <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-bold">🕒 Últimos movimientos</h2>
-          <Link href="/app/movimientos" className="text-xs text-green-700 dark:text-green-300">
+          <Link href="/app/movimientos" className="text-xs text-brand-700 dark:text-brand-300">
             Ver todos →
           </Link>
         </div>
@@ -288,7 +288,7 @@ export default async function DashboardPage({
                 </span>
                 <span
                   className={`ml-3 shrink-0 font-semibold tabular ${
-                    t.type === "income" ? "text-green-600 dark:text-green-400" : "text-zinc-800 dark:text-zinc-100"
+                    t.type === "income" ? "text-brand-600 dark:text-brand-400" : "text-zinc-800 dark:text-zinc-100"
                   }`}
                 >
                   {t.type === "income" ? "+" : "−"}

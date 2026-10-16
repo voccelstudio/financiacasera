@@ -15,7 +15,7 @@ export default function OnboardingPage() {
       </div>
       <div className="w-full max-w-md space-y-5">
         <div className="text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-green-600 text-2xl">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 text-2xl">
             👨‍👩‍👧‍👦
           </div>
           <h1 className="text-xl font-bold">Configurá tu familia</h1>
@@ -31,12 +31,12 @@ export default function OnboardingPage() {
               name="family_name"
               required
               placeholder="Ej: Familia González"
-              className="min-w-0 flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
+              className="min-w-0 flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900"
             />
             <button
               type="submit"
               disabled={createPending}
-              className="rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+              className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
             >
               {createPending ? "..." : "Crear"}
             </button>
@@ -55,12 +55,12 @@ export default function OnboardingPage() {
               placeholder="Ej: A2B3C4"
               autoCapitalize="characters"
               maxLength={8}
-              className="min-w-0 flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-center font-mono text-sm uppercase tracking-widest outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
+              className="min-w-0 flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-center font-mono text-sm uppercase tracking-widest outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900"
             />
             <button
               type="submit"
               disabled={joinPending}
-              className="rounded-xl border border-green-600 bg-green-50 dark:bg-green-950 px-4 py-2.5 text-sm font-semibold text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900 disabled:opacity-60"
+              className="rounded-xl border border-brand-600 bg-brand-50 dark:bg-brand-950 px-4 py-2.5 text-sm font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900 disabled:opacity-60"
             >
               {joinPending ? "..." : "Unirme"}
             </button>

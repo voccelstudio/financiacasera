@@ -26,26 +26,26 @@ export function InviteCode({ code, familyName }: { code: string; familyName: str
   }
 
   return (
-    <div className="rounded-xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950 p-4 text-center">
-      <p className="text-xs text-green-700 dark:text-green-300">Código para unir gente a {familyName}</p>
-      <p className="my-2 font-mono text-3xl font-bold tracking-[0.3em] text-green-800 dark:text-green-200">
+    <div className="rounded-xl border border-brand-200 dark:border-brand-900 bg-brand-50 dark:bg-brand-950 p-4 text-center">
+      <p className="text-xs text-brand-700 dark:text-brand-300">Código para unir gente a {familyName}</p>
+      <p className="my-2 font-mono text-3xl font-bold tracking-[0.3em] text-brand-800 dark:text-brand-200">
         {code}
       </p>
       <div className="flex justify-center gap-2">
         <button
           onClick={copy}
-          className="rounded-xl bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-700"
+          className="rounded-xl bg-brand-600 px-4 py-2 text-xs font-semibold text-white hover:bg-brand-700"
         >
           {copied ? "✅ Copiado" : "📋 Copiar código"}
         </button>
         <button
           onClick={rotate}
-          className="rounded-xl border border-green-300 dark:border-green-700 px-4 py-2 text-xs text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900"
+          className="rounded-xl border border-brand-300 dark:border-brand-700 px-4 py-2 text-xs text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900"
         >
           🔁 Nuevo código
         </button>
       </div>
-      <p className="mt-2 text-[11px] text-green-600 dark:text-green-400">
+      <p className="mt-2 text-[11px] text-brand-600 dark:text-brand-400">
         El otro debe ingresar a la app y elegir «Unirme con código».
       </p>
     </div>
@@ -67,12 +67,12 @@ export function AddMemberForm() {
         onChange={(e) => setName(e.target.value)}
         placeholder="Nombre (Ej: Juan, Sofi, Miguelito)"
         maxLength={40}
-        className="min-w-0 flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
+        className="min-w-0 flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900"
       />
       <button
         type="submit"
         disabled={pending}
-        className="rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+        className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
       >
         {pending ? "..." : "Agregar"}
       </button>

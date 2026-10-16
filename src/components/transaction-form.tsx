@@ -16,7 +16,7 @@ interface Props {
 }
 
 const input =
-  "w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900";
+  "w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900";
 
 export function TransactionForm({ categories, members, defaultRate, transaction, initialMemberIds = [] }: Props) {
   const [state, action, pending] = useActionState(saveTransaction, undefined);
@@ -88,7 +88,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
                 type="button"
                 onClick={() => setCurrency(c)}
                 className={`px-3 text-xs font-bold ${
-                  currency === c ? "bg-green-600 text-white" : "bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400"
+                  currency === c ? "bg-brand-600 text-white" : "bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400"
                 }`}
               >
                 {c}
@@ -150,7 +150,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
             onClick={() => setScope("family")}
             className={`rounded-xl border px-3 py-2.5 text-sm transition ${
               scope === "family"
-                ? "border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950 font-semibold text-green-700 dark:text-green-300"
+                ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-950 font-semibold text-brand-700 dark:text-brand-300"
                 : "border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-950"
             }`}
           >
@@ -161,7 +161,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
             onClick={() => setScope("members")}
             className={`rounded-xl border px-3 py-2.5 text-sm transition ${
               scope === "members"
-                ? "border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950 font-semibold text-green-700 dark:text-green-300"
+                ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-950 font-semibold text-brand-700 dark:text-brand-300"
                 : "border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-950"
             }`}
           >
@@ -186,7 +186,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
                       type="checkbox"
                       checked={checked}
                       onChange={() => toggleMember(m.id)}
-                      className="h-4 w-4 accent-green-600"
+                      className="h-4 w-4 accent-brand-600"
                     />
                     <span
                       className="h-2.5 w-2.5 rounded-full"
@@ -217,7 +217,7 @@ export function TransactionForm({ categories, members, defaultRate, transaction,
         <button
           type="submit"
           disabled={pending}
-          className="flex-1 rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+          className="flex-1 rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
         >
           {pending ? "Guardando..." : transaction ? "Guardar cambios" : "Guardar movimiento"}
         </button>

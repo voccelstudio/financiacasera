@@ -36,7 +36,7 @@ export default function PoliticaPrivacidad() {
       </section>
 
       <p className="mt-6">
-        <Link href="/" className="text-green-700 dark:text-green-300 underline">
+        <Link href="/" className="text-brand-700 dark:text-brand-300 underline">
           ← Volver a la app
         </Link>
       </p>

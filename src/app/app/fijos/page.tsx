@@ -74,7 +74,7 @@ export default async function CuentasFijasPage() {
                     <form action={payBill}>
                       <input type="hidden" name="id" value={b.id} />
                       <button
-                        className="rounded-lg bg-green-50 dark:bg-green-950 px-2 py-1 text-[11px] font-semibold text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900"
+                        className="rounded-lg bg-brand-50 dark:bg-brand-950 px-2 py-1 text-[11px] font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900"
                         title="Registrar como gasto de hoy"
                       >
                         Pagar

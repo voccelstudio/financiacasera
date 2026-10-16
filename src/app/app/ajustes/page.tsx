@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getFamilyContext } from "@/lib/session";
 import { getLatestRate } from "@/lib/queries";
+import { PalettePicker } from "@/components/palette-picker";
 import { FamilyNameForm, LeaveFamilyButton, ProfileNameForm, RateForm } from "./ajustes-client";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,16 @@ export default async function AjustesPage() {
         <h1 className="text-xl font-bold">Ajustes</h1>
         <p className="text-xs text-zinc-500 dark:text-zinc-400">Datos de tu familia y de tu cuenta.</p>
       </div>
+
+      <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+        <h2 className="mb-1 text-sm font-bold">🎨 Apariencia</h2>
+        <p className="mb-3 text-[11px] text-zinc-400 dark:text-zinc-500">
+          Color de la app para toda la familia. El modo claro/oscuro lo cambiás con el botón ☀️🌙
+          de arriba. Tus ingresos siempre se ven en verde y los gastos en rojo, sea cual sea el
+          color que elijas.
+        </p>
+        <PalettePicker />
+      </section>
 
       <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
         <h2 className="mb-3 text-sm font-bold">💱 Tasa de cambio (USD → PYG)</h2>
@@ -49,7 +60,7 @@ export default async function AjustesPage() {
         <h2 className="mb-2 text-sm font-bold text-zinc-700 dark:text-zinc-300">ℹ️ Sobre la app</h2>
         <p>Financia Casera v1.0 — Monedas: guaraníes (₲) y dólares (US$).</p>
         <p className="mt-1">
-          <Link href="/politica-privacidad" className="text-green-700 dark:text-green-300 underline">
+          <Link href="/politica-privacidad" className="text-brand-700 dark:text-brand-300 underline">
             Política de privacidad
           </Link>
         </p>

@@ -71,7 +71,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
         </div>
         <Link
           href="/app/movimientos/nuevo"
-          className="rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
+          className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
         >
           ➕ Agregar
         </Link>

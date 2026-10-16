@@ -6,7 +6,7 @@ import { leaveFamily, renameFamily, saveProfileName, saveRate } from "./actions"
 type Result = { error?: string; ok?: string };
 
 const input =
-  "w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900";
+  "w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900";
 
 function Feedback({ state }: { state: Result | undefined }) {
   if (state?.ok) return <p className="text-xs text-green-700 dark:text-green-300">{state.ok}</p>;
@@ -30,7 +30,7 @@ export function RateForm({ defaultRate }: { defaultRate: number }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+          className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
         >
           {pending ? "..." : "Guardar"}
         </button>

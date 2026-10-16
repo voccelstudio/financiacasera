@@ -47,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* Aplica el tema guardado antes del primer pintado (sin parpadeo) */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem('fc-theme')||'system';var d=m==='dark'||(m!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.style.colorScheme=d?'dark':'light'}catch(e){}})();`,
+            __html: `(function(){try{var p=localStorage.getItem('fc-palette');if(p)document.documentElement.setAttribute('data-theme',p);var m=localStorage.getItem('fc-theme')||'system';var d=m==='dark'||(m!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.style.colorScheme=d?'dark':'light'}catch(e){}})();`,
           }}
         />
       </head>

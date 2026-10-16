@@ -60,7 +60,7 @@ export default async function FamiliaPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
                     {m.name}
-                    {isMe && <span className="ml-1.5 text-[10px] text-green-600 dark:text-green-400">(vos)</span>}
+                    {isMe && <span className="ml-1.5 text-[10px] text-brand-600 dark:text-brand-400">(vos)</span>}
                     {m.role === "admin" && (
                       <span className="ml-1.5 rounded bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-500 dark:text-zinc-400">
                         admin

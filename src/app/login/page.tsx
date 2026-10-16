@@ -21,7 +21,7 @@ export default function LoginPage() {
       </div>
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-600 text-3xl shadow-lg shadow-green-200">
+          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-600 text-3xl shadow-lg shadow-brand-200">
             🏡
           </div>
           <h1 className="text-2xl font-bold">Financia Casera</h1>
@@ -39,7 +39,7 @@ export default function LoginPage() {
               required
               placeholder="tu@email.com"
               autoComplete="email"
-              className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
+              className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900"
             />
             <input
               name="password"
@@ -47,12 +47,12 @@ export default function LoginPage() {
               required
               placeholder="Contraseña"
               autoComplete="current-password"
-              className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
+              className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900"
             />
             <button
               type="submit"
               disabled={pending}
-              className="w-full rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-60"
+              className="w-full rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
             >
               {pending ? "Ingresando..." : "Entrar"}
             </button>
@@ -69,7 +69,7 @@ export default function LoginPage() {
               required
               placeholder="Tu nombre"
               autoComplete="name"
-              className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
+              className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900"
             />
             <input
               name="email"
@@ -77,7 +77,7 @@ export default function LoginPage() {
               required
               placeholder="tu@email.com"
               autoComplete="email"
-              className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
+              className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900"
             />
             <input
               name="password"
@@ -86,12 +86,12 @@ export default function LoginPage() {
               minLength={6}
               placeholder="Contraseña (mín. 6 caracteres)"
               autoComplete="new-password"
-              className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
+              className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900"
             />
             <button
               type="submit"
               disabled={regPending}
-              className="w-full rounded-xl border border-green-600 bg-green-50 dark:bg-green-950 px-4 py-2.5 text-sm font-semibold text-green-700 dark:text-green-300 transition hover:bg-green-100 dark:hover:bg-green-900 disabled:opacity-60"
+              className="w-full rounded-xl border border-brand-600 bg-brand-50 dark:bg-brand-950 px-4 py-2.5 text-sm font-semibold text-brand-700 dark:text-brand-300 transition hover:bg-brand-100 dark:hover:bg-brand-900 disabled:opacity-60"
             >
               {regPending ? "Creando cuenta..." : "Crear cuenta gratis"}
             </button>

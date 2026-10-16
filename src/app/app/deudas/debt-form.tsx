@@ -7,7 +7,7 @@ export function DebtForm() {
   const [state, action, pending] = useActionState(saveDebt, undefined);
 
   const input =
-    "w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900";
+    "w-full rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900";
 
   return (
     <form action={action} className="space-y-3">
@@ -42,7 +42,7 @@ export function DebtForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+        className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
       >
         {pending ? "Guardando..." : "Agregar"}
       </button>
@@ -61,7 +61,7 @@ export function PayDebtButton({ id }: { id: string }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg bg-green-50 dark:bg-green-950 px-3 py-1.5 text-xs font-semibold text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900"
+        className="rounded-lg bg-brand-50 dark:bg-brand-950 px-3 py-1.5 text-xs font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900"
       >
         Abonar
       </button>
@@ -92,7 +92,7 @@ export function PayDebtButton({ id }: { id: string }) {
         placeholder="Monto"
         className="w-24 rounded-lg border border-zinc-300 dark:border-zinc-700 px-2 py-1.5 text-xs tabular"
       />
-      <button type="submit" className="rounded-lg bg-green-600 px-2.5 py-1.5 text-xs font-semibold text-white">
+      <button type="submit" className="rounded-lg bg-brand-600 px-2.5 py-1.5 text-xs font-semibold text-white">
         OK
       </button>
       <button type="button" onClick={() => setOpen(false)} className="text-xs text-zinc-400 dark:text-zinc-500">

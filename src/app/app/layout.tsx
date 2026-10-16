@@ -14,7 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-4 py-3 backdrop-blur md:px-6">
           <div className="flex items-center gap-2 md:hidden">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-600">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600">
               🏡
             </span>
             <span className="text-sm font-bold">Financia Casera</span>

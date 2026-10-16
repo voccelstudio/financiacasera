@@ -33,7 +33,7 @@ export function Sidebar() {
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 md:flex">
       <div className="flex items-center gap-2 px-5 py-5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600 text-lg">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-lg">
           🏡
         </span>
         <div>
@@ -48,7 +48,7 @@ export function Sidebar() {
             href={item.href}
             className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
               isActive(pathname, item.href)
-                ? "bg-green-50 dark:bg-green-950 font-semibold text-green-700 dark:text-green-300"
+                ? "bg-brand-50 dark:bg-brand-950 font-semibold text-brand-700 dark:text-brand-300"
                 : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             }`}
           >
@@ -74,12 +74,12 @@ export function BottomNav() {
             key={item.href}
             href={item.href}
             className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${
-              active ? "font-semibold text-green-700 dark:text-green-300" : "text-zinc-500 dark:text-zinc-400"
+              active ? "font-semibold text-brand-700 dark:text-brand-300" : "text-zinc-500 dark:text-zinc-400"
             }`}
           >
             <span
               className={`flex h-8 w-8 items-center justify-center rounded-full text-base ${
-                isFab ? "bg-green-600 text-white shadow-md shadow-green-200" : ""
+                isFab ? "bg-brand-600 text-white shadow-md shadow-brand-200" : ""
               }`}
             >
               {item.icon}
