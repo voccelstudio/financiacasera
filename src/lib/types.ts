@@ -102,6 +102,54 @@ export interface FxRate {
   rate: number
 }
 
+/** Meta de ahorro familiar (ej: heladera nueva, vacaciones) */
+export interface SavingsGoal {
+  id: string
+  family_id: string
+  name: string
+  emoji: string
+  target_amount: number
+  currency: Currency
+  pyg_rate: number
+  deadline: string | null
+  archived: boolean
+  created_by: string | null
+  created_at: string
+}
+
+/** Aporte individual hacia una meta */
+export interface GoalContribution {
+  id: string
+  goal_id: string
+  family_id: string
+  member_id: string | null
+  amount: number
+  currency: Currency
+  pyg_rate: number
+  note: string | null
+  date: string
+  created_at: string
+}
+
+/** Historial de pagos de una cuenta fija (para ver si subió la tarifa) */
+export interface BillPayment {
+  id: string
+  bill_id: string
+  family_id: string
+  transaction_id: string | null
+  amount: number
+  currency: Currency
+  pyg_rate: number
+  paid_at: string
+}
+
+/** Meta con el progreso calculado a partir de sus aportes */
+export interface GoalWithProgress extends SavingsGoal {
+  saved: number
+  contrib_count: number
+  last_contribution: string | null
+}
+
 /** Movimiento con datos relacionados para mostrar en listas */
 export interface TransactionWithDetails extends Transaction {
   category: Pick<Category, 'name' | 'icon' | 'color'> | null

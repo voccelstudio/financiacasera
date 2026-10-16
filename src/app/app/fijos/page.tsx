@@ -1,24 +1,43 @@
 import { getFamilyContext } from "@/lib/session";
-import { getCategories, getLatestRate, getRecurringBills } from "@/lib/queries";
-import { formatMoney } from "@/lib/money";
+import {
+  getBillPayments,
+  getCategories,
+  getLatestRate,
+  getRecurringBills,
+} from "@/lib/queries";
+import { currentMonth, formatMoney } from "@/lib/money";
 import { BillForm } from "./bill-form";
 import { deleteBill, payBill, toggleBill } from "./actions";
-import type { Currency, RecurringBill } from "@/lib/types";
+import type { BillPayment, Currency, RecurringBill } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function CuentasFijasPage() {
   const { family } = await getFamilyContext();
-  const [categories, bills, rate] = await Promise.all([
+  const [categories, bills, rate, payments] = await Promise.all([
     getCategories(family.id),
     getRecurringBills(family.id),
     getLatestRate(family.id),
+    getBillPayments(family.id),
   ]);
 
   const catMap = new Map(categories.map((c) => [c.id, c]));
   const totalPyg = bills.reduce(
     (a, b) => a + (b.currency === "USD" ? Number(b.amount) * rate : Number(b.amount)),
     0
+  );
+
+  // Historial por cuenta + estado del mes en curso
+  const paymentsByBill = new Map<string, BillPayment[]>();
+  for (const p of payments) {
+    const list = paymentsByBill.get(p.bill_id) ?? [];
+    list.push(p);
+    paymentsByBill.set(p.bill_id, list);
+  }
+  const month = currentMonth();
+  const todayDay = new Date().getDate();
+  const paidThisMonth = new Set(
+    payments.filter((p) => p.paid_at.startsWith(month)).map((p) => p.bill_id)
   );
 
   return (
@@ -49,6 +68,13 @@ export default async function CuentasFijasPage() {
           <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
             {bills.map((b: RecurringBill) => {
               const cat = b.category_id ? catMap.get(b.category_id) : undefined;
+              const hist = paymentsByBill.get(b.id) ?? [];
+              const paid = paidThisMonth.has(b.id);
+              const wasDue = b.due_day < todayDay;
+              const last = hist[0];
+              const prev = hist[1];
+              const changed =
+                last && prev && Number(last.amount) !== Number(prev.amount);
               return (
                 <li key={b.id} className="flex items-center gap-3 py-3">
                   <span
@@ -59,10 +85,53 @@ export default async function CuentasFijasPage() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{b.name}</p>
-                    <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                    <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-zinc-400 dark:text-zinc-500">
                       📅 Día {b.due_day}
-                      {cat ? ` · ${cat.name}` : ""}
+                      {cat ? `· ${cat.name}` : ""}
+                      <span
+                        className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                          paid
+                            ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300"
+                            : wasDue
+                              ? "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400"
+                              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+                        }`}
+                      >
+                        {paid ? "✅ pagado este mes" : wasDue ? "⏳ pendiente" : "programado"}
+                      </span>
                     </p>
+                    {changed && (
+                      <p className="text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                        {Number(last.amount) > Number(prev.amount) ? "⬆️ Subió" : "⬇️ Bajó"} de{" "}
+                        {formatMoney(Number(prev.amount), prev.currency as Currency)} a{" "}
+                        {formatMoney(Number(last.amount), last.currency as Currency)}
+                      </p>
+                    )}
+                    {hist.length > 0 && (
+                      <details className="mt-1">
+                        <summary className="cursor-pointer select-none text-[11px] text-brand-700 dark:text-brand-300">
+                          Ver historial ({hist.length} pago{hist.length === 1 ? "" : "s"})
+                        </summary>
+                        <ul className="mt-1 space-y-0.5">
+                          {hist.slice(0, 6).map((p) => (
+                            <li
+                              key={p.id}
+                              className="flex justify-between text-[11px] tabular text-zinc-500 dark:text-zinc-400"
+                            >
+                              <span>
+                                {new Date(p.paid_at + "T12:00:00").toLocaleDateString(
+                                  "es-PY",
+                                  { day: "numeric", month: "short", year: "2-digit" }
+                                )}
+                              </span>
+                              <span>
+                                {formatMoney(Number(p.amount), p.currency as Currency)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold tabular">

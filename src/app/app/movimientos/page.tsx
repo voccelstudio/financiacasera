@@ -19,11 +19,15 @@ interface Props {
     type?: string
     category?: string
     member?: string
+    q?: string
+    from?: string
+    to?: string
   }>
 }
 
 export default async function MovimientosPage({ searchParams }: Props) {
   const params = await searchParams;
+  const hasRange = Boolean(params.from || params.to);
   const month = params.month ?? currentMonth();
   const { family } = await getFamilyContext();
 
@@ -31,10 +35,14 @@ export default async function MovimientosPage({ searchParams }: Props) {
     getCategories(family.id),
     getActiveMembers(family.id),
     getTransactions(family.id, {
-      month,
+      // Si hay rango libre de fechas, tiene prioridad sobre el mes
+      month: hasRange ? undefined : month,
       type: params.type === "income" || params.type === "expense" ? params.type : undefined,
       categoryId: params.category || undefined,
       memberId: params.member || undefined,
+      q: params.q?.trim() || undefined,
+      from: params.from || undefined,
+      to: params.to || undefined,
     }),
   ]);
 
@@ -54,6 +62,23 @@ export default async function MovimientosPage({ searchParams }: Props) {
   const summary = summarize(transactions);
   const catMap = new Map(categories.map((c) => [c.id, c]));
 
+  // Link de exportación con los filtros activos
+  const exportParams = new URLSearchParams({ month });
+  if (params.type) exportParams.set("type", params.type);
+  if (params.category) exportParams.set("category", params.category);
+  if (params.member) exportParams.set("member", params.member);
+  if (params.q?.trim()) exportParams.set("q", params.q.trim());
+  if (params.from) exportParams.set("from", params.from);
+  if (params.to) exportParams.set("to", params.to);
+  const exportHref = `/app/movimientos/export?${exportParams.toString()}`;
+  const fmtDay = (d?: string) =>
+    d
+      ? new Date(d + "T12:00:00").toLocaleDateString("es-PY", {
+          day: "numeric",
+          month: "short",
+        })
+      : "…";
+
   // Agrupar por fecha
   const byDate = new Map<string, Transaction[]>();
   for (const t of transactions) {
@@ -64,17 +89,37 @@ export default async function MovimientosPage({ searchParams }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold">Movimientos</h1>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">{monthLabel(month)}</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            {hasRange
+              ? `${fmtDay(params.from)} — ${fmtDay(params.to)}`
+              : monthLabel(month)}
+          </p>
         </div>
-        <Link
-          href="/app/movimientos/nuevo"
-          className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
-        >
-          ➕ Agregar
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/app/movimientos/importar"
+            className="rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-950"
+            title="Importar un extracto bancario (CSV)"
+          >
+            📥 Importar
+          </Link>
+          <Link
+            href={exportHref}
+            className="rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-950"
+            title="Descargar estos movimientos en CSV (Excel)"
+          >
+            📤 CSV
+          </Link>
+          <Link
+            href="/app/movimientos/nuevo"
+            className="rounded-xl bg-brand-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
+          >
+            ➕ Agregar
+          </Link>
+        </div>
       </div>
 
       {/* Resumen del mes */}
@@ -111,6 +156,32 @@ export default async function MovimientosPage({ searchParams }: Props) {
           defaultValue={month}
           className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm"
         />
+        <input
+          type="search"
+          name="q"
+          defaultValue={params.q ?? ""}
+          placeholder="🔍 Buscar…"
+          aria-label="Buscar por descripción"
+          className="min-w-0 flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm"
+        />
+        <label className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+          desde
+          <input
+            type="date"
+            name="from"
+            defaultValue={params.from ?? ""}
+            className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-2 text-sm"
+          />
+        </label>
+        <label className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+          hasta
+          <input
+            type="date"
+            name="to"
+            defaultValue={params.to ?? ""}
+            className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 py-2 text-sm"
+          />
+        </label>
         <select
           name="type"
           defaultValue={params.type ?? ""}

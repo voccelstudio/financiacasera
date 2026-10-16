@@ -3,20 +3,31 @@ import { getFamilyContext } from "@/lib/session";
 import {
   getBudgetsWithSpent,
   getDebts,
+  getGoals,
   getLatestRate,
   getRecurringBills,
   getTransactions,
   summarize,
 } from "@/lib/queries";
-import { currentMonth, formatMoney, monthLabel, toPyg } from "@/lib/money";
+import {
+  currentMonth,
+  formatMoney,
+  monthLabel,
+  monthRange,
+  previousMonths,
+  toPyg,
+} from "@/lib/money";
+import { computeAchievements } from "@/lib/achievements";
 import type { Currency } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 const quickLinks = [
   { href: "/app/presupuestos", icon: "🎯", label: "Presupuestos" },
+  { href: "/app/metas", icon: "🐷", label: "Metas" },
   { href: "/app/fijos", icon: "🔁", label: "Cuentas fijas" },
   { href: "/app/deudas", icon: "💳", label: "Por pagar" },
+  { href: "/app/asistente", icon: "🤖", label: "Asistente" },
   { href: "/app/tips", icon: "💡", label: "Tips" },
 ];
 
@@ -28,15 +39,21 @@ export default async function DashboardPage({
   const { welcome } = await searchParams.then((p) => ({ welcome: p.bienvenida }));
   const { family, membership } = await getFamilyContext();
   const month = currentMonth();
+  const months = previousMonths(6, month);
+  const fromRange = monthRange(months[0]).from;
 
-  const [transactions, budgets, bills, rate, allDebts] = await Promise.all([
-    getTransactions(family.id, { month }),
+  // Una sola traída de ~6 meses: sirve para el resumen del mes, los últimos
+  // movimientos y el cálculo de logros/rachas.
+  const [allTx, budgets, bills, rate, allDebts, goals] = await Promise.all([
+    getTransactions(family.id, { from: fromRange }, 600),
     getBudgetsWithSpent(family.id, month),
     getRecurringBills(family.id),
     getLatestRate(family.id),
     getDebts(family.id),
+    getGoals(family.id),
   ]);
 
+  const transactions = allTx.filter((t) => t.date.startsWith(month));
   const summary = summarize(transactions);
   const today = new Date().getDate();
   const upcoming = bills
@@ -60,6 +77,20 @@ export default async function DashboardPage({
   );
 
   const overBudget = budgets.filter((b) => b.spent > Number(b.budget.amount));
+  // Alertas tempranas: 80%+ del presupuesto (naranja) o superado (rojo)
+  const budgetAlerts = budgets
+    .filter((b) => b.spent > Number(b.budget.amount) * 0.8)
+    .sort(
+      (a, b) =>
+        b.spent / Number(b.budget.amount) - a.spent / Number(a.budget.amount)
+    );
+  const achievements = computeAchievements({
+    transactions: allTx,
+    budgets,
+    goals,
+    months,
+  });
+  const unlocked = achievements.filter((a) => a.achieved);
   const recent = transactions.slice(0, 5);
 
   return (
@@ -78,6 +109,53 @@ export default async function DashboardPage({
         <p className="text-xs text-zinc-400 dark:text-zinc-500">Hola, {membership.name} 👋</p>
         <h1 className="text-xl font-bold">Resumen de {monthLabel(month)}</h1>
       </div>
+
+      {/* ⚠️ Alertas de presupuesto: avisar ANTES de pasarse */}
+      {budgetAlerts.length > 0 && (
+        <section
+          className={`rounded-2xl border px-4 py-3 ${
+            overBudget.length > 0
+              ? "border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950"
+              : "border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950"
+          }`}
+        >
+          <p className="text-sm font-bold">
+            {overBudget.length > 0 ? "🚨" : "⚠️"} Cuidado con estos gastos del mes
+          </p>
+          <ul className="mt-2 space-y-1.5">
+            {budgetAlerts.slice(0, 5).map(({ budget, category, spent }) => {
+              const limit = Number(budget.amount);
+              const pct = Math.round((spent / limit) * 100);
+              const exceeded = spent > limit;
+              return (
+                <li key={budget.id} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="truncate">
+                    {category.icon} {category.name}
+                    {exceeded ? " · ¡superado!" : ` · ${pct}% usado`}
+                  </span>
+                  <span
+                    className={`shrink-0 font-semibold tabular ${
+                      exceeded
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-amber-700 dark:text-amber-300"
+                    }`}
+                  >
+                    {exceeded
+                      ? `+${formatMoney(spent - limit)}`
+                      : `quedan ${formatMoney(limit - spent)}`}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          <Link
+            href="/app/presupuestos"
+            className="mt-2 inline-block text-xs font-semibold underline opacity-80 hover:opacity-100"
+          >
+            Ajustar presupuestos →
+          </Link>
+        </section>
+      )}
 
       {/* Tarjetas de balance */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -112,7 +190,7 @@ export default async function DashboardPage({
       </div>
 
       {/* Accesos rápidos */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {quickLinks.map((l) => (
           <Link
             key={l.href}
@@ -260,6 +338,42 @@ export default async function DashboardPage({
           </p>
         </section>
       </div>
+
+      {/* 🏅 Logros y rachas */}
+      <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-bold">🏅 Logros de la familia</h2>
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+            {unlocked.length}/{achievements.length} desbloqueados
+          </span>
+        </div>
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
+          {achievements.map((a) => (
+            <div
+              key={a.id}
+              title={`${a.name} — ${a.desc}${a.achieved ? "" : ` (avance: ${a.progress}%)`}`}
+              className={`flex flex-col items-center gap-1 rounded-xl border px-1 py-2 text-center ${
+                a.achieved
+                  ? "border-brand-200 dark:border-brand-900 bg-brand-50 dark:bg-brand-950"
+                  : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950"
+              }`}
+            >
+              <span className={`text-lg ${a.achieved ? "" : "grayscale opacity-40"}`}>
+                {a.icon}
+              </span>
+              <span
+                className={`text-[9px] leading-tight ${
+                  a.achieved
+                    ? "font-semibold text-brand-800 dark:text-brand-200"
+                    : "text-zinc-400 dark:text-zinc-600"
+                }`}
+              >
+                {a.achieved ? a.name : `${a.progress}%`}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Últimos movimientos */}
       <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">

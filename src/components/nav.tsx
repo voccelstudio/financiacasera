@@ -7,10 +7,12 @@ const items = [
   { href: "/app", label: "Resumen", icon: "🏠" },
   { href: "/app/movimientos", label: "Movimientos", icon: "💸" },
   { href: "/app/presupuestos", label: "Presupuestos", icon: "🎯" },
+  { href: "/app/metas", label: "Metas", icon: "🐷" },
   { href: "/app/reportes", label: "Reportes", icon: "📊" },
   { href: "/app/fijos", label: "Cuentas fijas", icon: "🔁" },
   { href: "/app/deudas", label: "Por pagar", icon: "💳" },
   { href: "/app/familia", label: "Familia", icon: "👨‍👩‍👧" },
+  { href: "/app/asistente", label: "Asistente", icon: "🤖" },
   { href: "/app/tips", label: "Tips", icon: "💡" },
   { href: "/app/ajustes", label: "Ajustes", icon: "⚙️" },
 ];

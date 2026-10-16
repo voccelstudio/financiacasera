@@ -5,6 +5,7 @@
  * Cuando se configure el backend real, basta con quitar la variable.
  */
 import type {
+  BillPayment,
   Budget,
   Category,
   Currency,
@@ -12,14 +13,18 @@ import type {
   Family,
   FamilyMember,
   FxRate,
+  GoalContribution,
+  GoalWithProgress,
   Profile,
   RecurringBill,
+  SavingsGoal,
   Transaction,
   TransactionMember,
   TxScope,
   TxType,
 } from '@/lib/types'
 import { currentMonth, previousMonths } from '@/lib/money'
+import { goalSaved } from '@/lib/goals'
 
 export const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === '1'
 
@@ -34,6 +39,9 @@ interface DemoDb {
   bills: RecurringBill[]
   debts: Debt[]
   rates: FxRate[]
+  goals: SavingsGoal[]
+  contributions: GoalContribution[]
+  billPayments: BillPayment[]
 }
 
 let seq = 1000
@@ -313,6 +321,93 @@ function seed(): DemoDb {
     }
   })
 
+  // --- Metas de ahorro con aportes repartidos en los meses ---
+  const goals: SavingsGoal[] = (
+    [
+      ['g-heladera', 'Heladera nueva', '🧊', 3200000, null],
+      ['g-emergencia', 'Fondo de emergencia', '🆘', 6000000, null],
+      ['g-vacaciones', 'Vacaciones en el sur', '🏖️', 3000000, null],
+    ] as [string, string, string, number, string | null][]
+  ).map(([id, name, emoji, target, deadline]) => ({
+    id,
+    family_id: 'demo-family',
+    name,
+    emoji,
+    target_amount: target,
+    currency: 'PYG' as Currency,
+    pyg_rate: 1,
+    deadline,
+    archived: false,
+    created_by: 'demo-user',
+    created_at: '2026-04-01T00:00:00Z',
+  }))
+
+  let contribSeq = 0
+  const contributions: GoalContribution[] = []
+  const contribute = (
+    goalId: string,
+    amount: number,
+    date: string,
+    memberId: string | null,
+    note: string | null = null
+  ) =>
+    contributions.push({
+      id: `gc-${++contribSeq}`,
+      goal_id: goalId,
+      family_id: 'demo-family',
+      member_id: memberId,
+      amount,
+      currency: 'PYG',
+      pyg_rate: 1,
+      note,
+      date,
+      created_at: `${date}T12:00:00Z`,
+    })
+
+  const m1 = past[3] ?? past[0]
+  const m2 = past[4] ?? past[past.length - 1]
+  // Heladera: ~1.800.000 guardados
+  contribute('g-heladera', 400000, isoOf(m1, 8), 'mem-carlos', 'Arranque del fondo')
+  contribute('g-heladera', 500000, isoOf(m2, 8), 'mem-carlos')
+  contribute('g-heladera', 600000, isoOf(past[4] ?? m2, 20), 'mem-maria', 'Venta de cosas')
+  contribute('g-heladera', 300000, iso(6), 'mem-carlos', 'Sobriente del sueldo')
+  // Fondo de emergencia: 2.400.000 de 6.000.000
+  contribute('g-emergencia', 600000, isoOf(m1, 15), 'mem-maria')
+  contribute('g-emergencia', 700000, isoOf(m2, 15), 'mem-maria', 'Aporte mensual')
+  contribute('g-emergencia', 1100000, iso(2), 'mem-carlos', 'Trabajo extra')
+  // Vacaciones: 900.000 de 3.000.000
+  contribute('g-vacaciones', 500000, isoOf(m2, 25), 'mem-carlos')
+  contribute('g-vacaciones', 400000, iso(9), 'mem-maria', 'Changa de bordado')
+
+  // --- Historial de pagos de las cuentas fijas (últimos meses) ---
+  const billPayments: BillPayment[] = []
+  for (const b of bills) {
+    past.forEach((m) => {
+      billPayments.push({
+        id: uid('bp'),
+        bill_id: b.id,
+        family_id: 'demo-family',
+        transaction_id: null,
+        amount: b.amount,
+        currency: b.currency,
+        pyg_rate: b.pyg_rate,
+        paid_at: isoOf(m, b.due_day),
+      })
+    })
+    if (b.due_day <= todayDay) {
+      billPayments.push({
+        id: uid('bp'),
+        bill_id: b.id,
+        family_id: 'demo-family',
+        transaction_id: null,
+        amount: b.amount,
+        currency: b.currency,
+        pyg_rate: b.pyg_rate,
+        paid_at: iso(b.due_day),
+      })
+    }
+  }
+
   return {
     profile: {
       id: 'demo-user',
@@ -334,6 +429,9 @@ function seed(): DemoDb {
     bills,
     debts,
     rates,
+    goals,
+    contributions,
+    billPayments,
   }
 }
 
@@ -365,6 +463,9 @@ export interface DemoFilters {
   type?: 'income' | 'expense'
   categoryId?: string
   memberId?: string
+  q?: string
+  from?: string
+  to?: string
 }
 
 export const demoTransactions = (filters: DemoFilters = {}): Transaction[] => {
@@ -374,6 +475,12 @@ export const demoTransactions = (filters: DemoFilters = {}): Transaction[] => {
   }
   if (filters.type) rows = rows.filter((t) => t.type === filters.type)
   if (filters.categoryId) rows = rows.filter((t) => t.category_id === filters.categoryId)
+  if (filters.q) {
+    const q = filters.q.toLowerCase()
+    rows = rows.filter((t) => (t.description ?? '').toLowerCase().includes(q))
+  }
+  if (filters.from) rows = rows.filter((t) => t.date >= filters.from!)
+  if (filters.to) rows = rows.filter((t) => t.date <= filters.to!)
   if (filters.memberId) {
     const ids = new Set(
       db.shares.filter((s) => s.member_id === filters.memberId).map((s) => s.transaction_id)
@@ -531,8 +638,10 @@ export const demoToggleBill = (id: string) => {
 export const demoPayBill = (id: string) => {
   const bill = db.bills.find((b) => b.id === id)
   if (!bill) return
+  const txId = uid('tx')
+  const todayStr = new Date().toISOString().slice(0, 10)
   db.transactions.push({
-    id: uid('tx'),
+    id: txId,
     family_id: 'demo-family',
     type: 'expense',
     amount: bill.amount,
@@ -540,10 +649,21 @@ export const demoPayBill = (id: string) => {
     pyg_rate: bill.pyg_rate,
     category_id: bill.category_id,
     description: `Pago: ${bill.name}`,
-    date: new Date().toISOString().slice(0, 10),
+    date: todayStr,
     scope: 'family',
     created_by: 'demo-user',
     created_at: new Date().toISOString(),
+  })
+  // Historial de pagos (para ver si la tarifa subió mes a mes)
+  db.billPayments.push({
+    id: uid('bp'),
+    bill_id: bill.id,
+    family_id: 'demo-family',
+    transaction_id: txId,
+    amount: bill.amount,
+    currency: bill.currency,
+    pyg_rate: bill.pyg_rate,
+    paid_at: todayStr,
   })
 }
 
@@ -653,3 +773,123 @@ export const demoUpdateProfile = (fullName: string) => {
   db.profile.full_name = fullName
   db.members[0].name = fullName.split(' ')[0] || fullName
 }
+
+// ---------- Metas de ahorro ----------
+/** Guardado de una meta (lógica compartida en lib/goals.ts) */
+const savedOf = (goal: SavingsGoal, contribs: GoalContribution[]): number =>
+  goalSaved(goal, contribs)
+
+export const demoGoalsWithProgress = (): GoalWithProgress[] =>
+  db.goals
+    .filter((g) => !g.archived)
+    .map((g) => {
+      const contribs = db.contributions.filter((c) => c.goal_id === g.id)
+      const last = contribs.reduce<string | null>(
+        (acc, c) => (!acc || c.date > acc ? c.date : acc),
+        null
+      )
+      return {
+        ...g,
+        saved: savedOf(g, contribs),
+        contrib_count: contribs.length,
+        last_contribution: last,
+      }
+    })
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))
+
+export const demoGoal = (id: string) => db.goals.find((g) => g.id === id) ?? null
+
+export const demoContributions = (goalId: string): GoalContribution[] =>
+  db.contributions
+    .filter((c) => c.goal_id === goalId)
+    .sort((a, b) => b.date.localeCompare(a.date))
+
+export const demoCreateGoal = (
+  input: {
+    name: string
+    emoji: string
+    target: number
+    currency: Currency
+    deadline: string
+  },
+  rate: number
+) => {
+  db.goals.push({
+    id: uid('g'),
+    family_id: 'demo-family',
+    name: input.name,
+    emoji: input.emoji || '🎯',
+    target_amount: input.target,
+    currency: input.currency,
+    pyg_rate: input.currency === 'USD' ? rate : 1,
+    deadline: input.deadline || null,
+    archived: false,
+    created_by: 'demo-user',
+    created_at: new Date().toISOString(),
+  })
+}
+
+export const demoDeleteGoal = (id: string) => {
+  db.goals = db.goals.filter((g) => g.id !== id)
+  db.contributions = db.contributions.filter((c) => c.goal_id !== id)
+}
+
+export const demoContribute = (
+  input: { goalId: string; amount: number; memberId: string; note: string; date: string },
+  rate: number
+): string | null => {
+  const goal = db.goals.find((g) => g.id === input.goalId)
+  if (!goal) return 'Meta no encontrada.'
+  db.contributions.push({
+    id: uid('gc'),
+    goal_id: goal.id,
+    family_id: 'demo-family',
+    member_id: input.memberId || null,
+    amount: input.amount,
+    currency: goal.currency,
+    pyg_rate: goal.currency === 'USD' ? rate : 1,
+    note: input.note || null,
+    date: input.date,
+    created_at: new Date().toISOString(),
+  })
+  return null
+}
+
+export const demoDeleteContribution = (id: string) => {
+  db.contributions = db.contributions.filter((c) => c.id !== id)
+}
+
+// ---------- Importación de extractos ----------
+export const demoImportTransactions = (
+  rows: {
+    type: TxType
+    amount: number
+    currency: Currency
+    date: string
+    categoryId: string
+    description: string
+  }[],
+  rate: number
+) => {
+  for (const row of rows) {
+    demoSaveTransaction(
+      {
+        type: row.type,
+        amount: row.amount,
+        currency: row.currency,
+        date: row.date,
+        categoryId: row.categoryId,
+        description: row.description,
+        scope: 'family',
+        memberIds: [],
+      },
+      rate
+    )
+  }
+}
+
+// ---------- Historial de cuentas fijas ----------
+export const demoBillPayments = (billId?: string): BillPayment[] =>
+  db.billPayments
+    .filter((p) => !billId || p.bill_id === billId)
+    .sort((a, b) => b.paid_at.localeCompare(a.paid_at))

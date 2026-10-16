@@ -1,12 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import { monthRange, toPyg, DEFAULT_PYG_RATE } from '@/lib/money'
+import { goalSaved } from '@/lib/goals'
 import {
   DEMO,
   demoBills,
+  demoBillPayments,
   demoBudgets,
   demoCategories,
+  demoContributions,
   demoDebts,
   demoFormerMembers,
+  demoGoal,
+  demoGoalsWithProgress,
   demoLatestRate,
   demoMembers,
   demoShareDetails,
@@ -16,11 +21,15 @@ import {
   type DemoFilters,
 } from '@/lib/demo/store'
 import type {
+  BillPayment,
   Budget,
   Category,
   Currency,
   FamilyMember,
+  GoalContribution,
+  GoalWithProgress,
   RecurringBill,
+  SavingsGoal,
   Transaction,
   TxType,
 } from '@/lib/types'
@@ -98,6 +107,9 @@ export async function getTransactions(
   }
   if (filters.type) query = query.eq('type', filters.type)
   if (filters.categoryId) query = query.eq('category_id', filters.categoryId)
+  if (filters.q) query = query.ilike('description', `%${filters.q}%`)
+  if (filters.from) query = query.gte('date', filters.from)
+  if (filters.to) query = query.lte('date', filters.to)
 
   const { data } = await query
   let rows = (data ?? []) as Transaction[]
@@ -291,4 +303,83 @@ export async function getDebts(familyId: string): Promise<DebtWithPyg[]> {
     .eq('family_id', familyId)
     .order('created_at', { ascending: false })
   return (data as DebtWithPyg[]) ?? []
+}
+
+// ---------- Metas de ahorro ----------
+
+/** Metas activas con su progreso calculado */
+export async function getGoals(familyId: string): Promise<GoalWithProgress[]> {
+  if (DEMO) return demoGoalsWithProgress()
+  const supabase = await createClient()
+  const [{ data: goals }, { data: contribs }] = await Promise.all([
+    supabase
+      .from('savings_goals')
+      .select('*')
+      .eq('family_id', familyId)
+      .eq('archived', false)
+      .order('created_at', { ascending: false }),
+    supabase.from('goal_contributions').select('*').eq('family_id', familyId),
+  ])
+  const rows = (contribs as GoalContribution[]) ?? []
+  return ((goals as SavingsGoal[]) ?? []).map((g) => {
+    const mine = rows.filter((c) => c.goal_id === g.id)
+    const last = mine.reduce<string | null>(
+      (acc, c) => (!acc || c.date > acc ? c.date : acc),
+      null
+    )
+    return {
+      ...g,
+      saved: goalSaved(g, mine),
+      contrib_count: mine.length,
+      last_contribution: last,
+    }
+  })
+}
+
+/** Una meta con todos sus aportes (para la vista de detalle) */
+export async function getGoalWithContributions(
+  familyId: string,
+  goalId: string
+): Promise<{ goal: SavingsGoal; contributions: GoalContribution[] } | null> {
+  if (DEMO) {
+    const goal = demoGoal(goalId)
+    return goal ? { goal, contributions: demoContributions(goalId) } : null
+  }
+  const supabase = await createClient()
+  const [{ data: goal }, { data: contribs }] = await Promise.all([
+    supabase
+      .from('savings_goals')
+      .select('*')
+      .eq('id', goalId)
+      .eq('family_id', familyId)
+      .maybeSingle(),
+    supabase
+      .from('goal_contributions')
+      .select('*')
+      .eq('goal_id', goalId)
+      .order('date', { ascending: false }),
+  ])
+  if (!goal) return null
+  return {
+    goal: goal as SavingsGoal,
+    contributions: (contribs as GoalContribution[]) ?? [],
+  }
+}
+
+/** Historial de pagos de cuentas fijas (más reciente primero) */
+export async function getBillPayments(
+  familyId: string,
+  billId?: string
+): Promise<BillPayment[]> {
+  if (DEMO) return demoBillPayments(billId)
+  const supabase = await createClient()
+  let query = supabase
+    .from('bill_payments')
+    .select('*')
+    .eq('family_id', familyId)
+    .order('paid_at', { ascending: false })
+    .limit(60)
+  if (billId) query = query.eq('bill_id', billId)
+  const { data } = await query
+  return (data as BillPayment[]) ?? []
 }

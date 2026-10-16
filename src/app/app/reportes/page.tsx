@@ -9,6 +9,7 @@ import {
 } from "@/lib/queries";
 import { currentMonth, formatMoney, monthLabel, monthRange, previousMonths, toPyg } from "@/lib/money";
 import { CategoryPie, MemberBar, MonthlyChart } from "@/components/charts";
+import { ShareCardButton } from "./share-card";
 import type { Category, Currency } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -81,6 +82,11 @@ export default async function ReportesPage({
 
   const summary = summarize(currentTx);
   const topCat = pieData[0];
+  const shareCats = pieData.slice(0, 5).map((c) => ({
+    name: c.name,
+    amount: c.value,
+    pct: summary.expense > 0 ? Math.round((c.value / summary.expense) * 100) : 0,
+  }));
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
@@ -126,6 +132,20 @@ export default async function ReportesPage({
             {formatMoney(summary.balance)}
           </p>
         </div>
+      </div>
+
+      {/* Resumen como imagen para compartir */}
+      <div className="flex justify-end">
+        <ShareCardButton
+          data={{
+            family: family.name,
+            month: monthLabel(month),
+            income: summary.income,
+            expense: summary.expense,
+            balance: summary.balance,
+            categories: shareCats,
+          }}
+        />
       </div>
 
       <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">

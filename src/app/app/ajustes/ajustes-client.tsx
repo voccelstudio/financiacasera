@@ -1,7 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
-import { leaveFamily, renameFamily, saveProfileName, saveRate } from "./actions";
+import {
+  fetchDollarRate,
+  leaveFamily,
+  renameFamily,
+  saveProfileName,
+  saveRate,
+} from "./actions";
 
 type Result = { error?: string; ok?: string };
 
@@ -16,27 +22,54 @@ function Feedback({ state }: { state: Result | undefined }) {
 
 export function RateForm({ defaultRate }: { defaultRate: number }) {
   const [state, action, pending] = useActionState(saveRate, undefined);
+  const [fetchState, fetchAction, fetchPending] = useActionState(fetchDollarRate, undefined);
   return (
-    <form action={action} className="space-y-2">
-      <div className="flex gap-2">
-        <input
-          name="rate"
-          inputMode="decimal"
-          required
-          defaultValue={defaultRate}
-          placeholder="7300"
-          className={`${input} flex-1 tabular`}
-        />
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
-        >
-          {pending ? "..." : "Guardar"}
-        </button>
+    <div className="space-y-2">
+      <form action={action} className="space-y-2">
+        <div className="flex gap-2">
+          <input
+            name="rate"
+            inputMode="decimal"
+            required
+            defaultValue={defaultRate}
+            placeholder="7300"
+            className={`${input} flex-1 tabular`}
+          />
+          <button
+            type="submit"
+            disabled={pending}
+            className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
+          >
+            {pending ? "..." : "Guardar"}
+          </button>
+        </div>
+        <Feedback state={state} />
+      </form>
+      <div className="flex items-center gap-2">
+        <form action={fetchAction}>
+          <button
+            type="submit"
+            disabled={fetchPending}
+            className="rounded-xl border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-950 disabled:opacity-60"
+            title="Tasa de referencia del Banco Central del Paraguay"
+          >
+            {fetchPending ? "Consultando…" : "🇵🇾 Traer tasa del día"}
+          </button>
+        </form>
+        <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
+          Fuente:{" "}
+          <a
+            href="https://allratestoday.com"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-zinc-600 dark:hover:text-zinc-300"
+          >
+            BCP vía AllRatesToday
+          </a>
+        </span>
       </div>
-      <Feedback state={state} />
-    </form>
+      <Feedback state={fetchState} />
+    </div>
   );
 }
 

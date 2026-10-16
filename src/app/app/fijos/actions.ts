@@ -108,20 +108,34 @@ export async function payBill(formData: FormData): Promise<void> {
   if (!bill) return;
 
   const today = new Date().toISOString().slice(0, 10);
-  const { error } = await supabase.from("transactions").insert({
-    family_id: family.id,
-    type: "expense",
-    amount: Number(bill.amount),
-    currency: bill.currency,
-    pyg_rate: Number(bill.pyg_rate),
-    category_id: bill.category_id,
-    description: `Pago: ${bill.name}`,
-    date: today,
-    scope: "family",
-    created_by: userId,
-  });
+  const { data: tx, error } = await supabase
+    .from("transactions")
+    .insert({
+      family_id: family.id,
+      type: "expense",
+      amount: Number(bill.amount),
+      currency: bill.currency,
+      pyg_rate: Number(bill.pyg_rate),
+      category_id: bill.category_id,
+      description: `Pago: ${bill.name}`,
+      date: today,
+      scope: "family",
+      created_by: userId,
+    })
+    .select("id")
+    .single();
 
   if (!error) {
+    // Historial de pagos: permite ver si la tarifa subió mes a mes
+    await supabase.from("bill_payments").insert({
+      bill_id: bill.id,
+      family_id: family.id,
+      transaction_id: tx?.id ?? null,
+      amount: Number(bill.amount),
+      currency: bill.currency,
+      pyg_rate: Number(bill.pyg_rate),
+      paid_at: today,
+    });
     revalidatePath("/app");
     revalidatePath("/app/fijos");
     revalidatePath("/app/movimientos");

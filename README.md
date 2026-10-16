@@ -6,16 +6,21 @@ Aplicación web (instalable en el celular como app) para que una **familia parag
 
 | Sección | Qué hace |
 |---|---|
-| 🏠 **Resumen** | Balance del mes, alertas de presupuesto, cuentas fijas por vencer, deudas y tasa de cambio |
-| 💸 **Movimientos** | Registrar ingresos/gastos con categoría, fecha y filtros. Cada movimiento puede ser de la **familia en general** o asignado a **miembros específicos** |
+| 🏠 **Resumen** | Balance del mes, **alertas de presupuesto (80%/100%)**, cuentas fijas por vencer, deudas, tasa de cambio y **logros/rachas de la familia** |
+| 💸 **Movimientos** | Registrar ingresos/gastos con categoría, fecha, **búsqueda de texto**, rango de fechas y filtros. Cada movimiento puede ser de la **familia en general** o asignado a **miembros específicos** |
+| 📥 **Importar extracto** | Subí o pegá el CSV de tu banco (Bancard, Continental, Itaú…) con vista previa, categorías sugeridas y confirmación antes de guardar |
+| 📤 **Exportar CSV** | Descarga los movimientos filtrados en CSV listo para Excel (con resumen al final) |
 | 🎯 **Presupuestos** | Límite mensual por categoría con barra de progreso y alertas |
-| 📊 **Reportes** | Ingresos vs. gastos (6 meses), gastos por categoría y por miembro |
-| 🔁 **Cuentas fijas** | Alquiler, luz (ANDE), agua (ESSAP), internet, cable... con botón «Pagar» que registra el gasto automáticamente |
+| 🐷 **Metas de ahorro** | «Heladera nueva», «Fondo de emergencia»… con aportes por miembro, progreso y fecha límite |
+| 📊 **Reportes** | Ingresos vs. gastos (6 meses), gastos por categoría y por miembro, y **resumen del mes como imagen** para compartir por WhatsApp |
+| 🤖 **Asistente** | Preguntas frecuentes («¿cuánto nos sobra?», «¿pagamos la luz?») respondidas con los datos de la familia, **sin internet ni servicios externos** |
+| 🔁 **Cuentas fijas** | Alquiler, luz (ANDE), agua (ESSAP), internet, cable... con botón «Pagar», **historial de pagos por cuenta** (¿subió la tarifa?) y estado «pagado este mes» |
 | 💳 **Cuentas por pagar** | Deudas con progreso de pago y abonos parciales |
 | 👨‍👩‍👧 **Familia** | Código de invitación, agregar miembros (con o sin cuenta) y **quitar miembros** de dos formas: archivar (conserva historial) o eliminar (borra solo sus gastos personales) |
 | 💡 **Tips** | Consejos de ahorro con contexto paraguayo |
 | 🎨 **Temas de color** | 7 paletas (Guaraní, Río, Sol, Lapacho, Orquídea, Tierra y Alto contraste accesible) elegibles por la familia; ingresos verdes y gastos rojos siempre |
 | 🌙 **Modo nocturno** | Tema claro/oscuro/según el sistema, con preferencia guardada y sin parpadeo |
+| 💱 **Dólar del día** | Botón «Traer tasa del día» que consulta la planilla oficial del **Banco Central del Paraguay** (sin clave de API) |
 | 📱 **PWA** | Se instala en el celular desde el navegador y funciona con caché offline básica |
 
 ### 💡 Diseño de "separación de cuentas"
@@ -49,9 +54,11 @@ Cuando quieras pasar al backend real, poné `NEXT_PUBLIC_DEMO_MODE=0` y seguí e
 ### 1. Crear el proyecto en Supabase (gratis)
 
 1. Entrá a [supabase.com](https://supabase.com) → **New project**.
-2. En **SQL Editor** → pegá y ejecutá el archivo
+2. En **SQL Editor** → pegá y ejecutá los archivos en orden:
    [`supabase/migrations/0001_initial_schema.sql`](supabase/migrations/0001_initial_schema.sql)
-   (crea tablas, permisos, funciones y categorías por defecto).
+   (tablas, permisos, funciones y categorías por defecto) y después
+   [`supabase/migrations/0002_savings_and_history.sql`](supabase/migrations/0002_savings_and_history.sql)
+   (metas de ahorro, aportes e historial de pagos).
 3. En **Authentication → Providers → Email**, para probar sin complicaciones:
    desactivá *Confirm email* (o dejalo activo y usá el link del email).
 4. En **Project Settings → API** copiá la *Project URL* y la *anon public key*.
@@ -102,6 +109,17 @@ src/components/          → componentes compartidos (nav, formularios, gráfico
 src/lib/                 → sesión, consultas, formato de dinero (₲/US$)
 scripts/generate-icons.mjs → regenera los iconos PWA (node scripts/generate-icons.mjs)
 ```
+
+## 🧭 Próximos pasos (requieren backend o servicios)
+
+Estas ideas ya están esbozadas pero necesitan Supabase conectado u otros servicios:
+
+- **Notificaciones push** de vencimientos y de «te pasaste del presupuesto»
+- **Comprobantes con foto** de cada gasto (Supabase Storage)
+- **Roles de solo lectura** para niños/adolescentes
+- **Modo offline completo** con cola de sincronización
+- **App en Play Store** (generar APK con [PWABuilder](https://pwabuilder.com))
+- **Copiloto con IA** (el asistente actual es 100% local y sin costo)
 
 ## 🗺️ Ideas para la versión móvil nativa
 
